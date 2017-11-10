@@ -51,8 +51,7 @@ class scenari():
         '''
         self.future = asyncio.Future()
         self.kwargs = kwargs
-        links = {'parse':[{'selection':{'type':'href', 'classe':None, 'value':None, 'regex':None},
-                         'resultat':{'text':'', 'attr':['liste des attributs']}}], 'inject':{}, 'follow':{}}
+
         actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session']
         Counter.tasks += 1
         # print(self.count)
@@ -65,16 +64,16 @@ class scenari():
             if attr in actions:
                 setattr(self, attr, value)
 
-    def validate(self):
+    def __validate(self):
         '''
-        Cette fonction permet de verifier un scenari
+        En cours de dev. Cette fonction permettra de verifier un scenari.
         :return: 
         '''
 
     async def connect(self):
         '''
         Cette fonction permet se connecter à une page avec une methode get ou post
-        Nous preparons les arguments pour qu'ils ne concernent que l'action à engagé
+        Nous preparons les arguments pour qu'ils ne concernent que l'action à engager
         :return: 
         '''
         co = Connect(**{ key: value for key, value in self.kwargs.items() if key in ('action', 'url', 'data', 'session')})
@@ -92,7 +91,8 @@ class scenari():
         # print(self.kwargs)
         if  self.kwargs['links']:
             self.produceLinks(self.kwargs['links'], self.page)
-        if self.kwargs['scenari']:
+
+        if self.scenari and type(self.scenari) is not bool:
             self.kwargs['scenari'].update({'session': self.session})
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.ensure_future(scenar.run())
@@ -108,15 +108,15 @@ class scenari():
         for list_balise in links_parse:
             for link in list_balise:
                 if self.kwargs['links']['scenari']:
-                    # print('link ', link)
+
                     modele = self.modele_scenari.copy()
                     modele.update({
                          'action': 'get',
                          'url': link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href']),
                          'data': None,
                          'parse': self.kwargs['links']['futur_parse'],
-                         'links': None,
-                         'scenari': None,
+                         'links': self.links['links'],
+                         'scenari': True,
                          'session': None})
                     scenar = scenari(loop=self.loop, **modele)
                     asyncio.ensure_future(scenar.run())

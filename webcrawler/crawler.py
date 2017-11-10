@@ -32,13 +32,21 @@ class Crawler():
 
 if __name__=="__main__":
     loop = asyncio.get_event_loop()
-
+    linkss = {
+                'parse': [{'selection': {'type': 'a'},
+                           'resultat': {'attrs': ['href', 'title', 'text']}}],
+                'futur_parse': [{'selection': {'type': 'a'},
+                                 'resultat': {'attrs': ['href', 'title', 'text']}}],
+                'links':[],
+            'scenari':True,
+                      'session': None,
+    'inject': {}, 'follow': True}
     links = {
              'parse': [{'selection': {'type': 'a'},
                         'resultat': {'attrs': ['href','title', 'text']}}],
              'futur_parse':[{'selection': {'type': 'a'},
                         'resultat': {'attrs': ['href','title', 'text']}}],
-             'links':[],
+             'links': linkss,
              'scenari':True,
              'session':None,
              'inject': {}, 'follow': True}
