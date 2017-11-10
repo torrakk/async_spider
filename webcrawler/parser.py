@@ -9,6 +9,12 @@ from bs4 import BeautifulSoup
 class Parse():
 
     def __init__(self, page):
+        '''
+        Le parser permet de parser une page web en fonction d'une liste de balise et de retourner une selection 
+        nous pouvons soit parser une liste de balise, soit une seule.
+        voir les méthodes : parse et list_parse
+        :param page: 
+        '''
         assert type(page)==str, "La page doit être de type string"
 
         self.page = page
@@ -40,28 +46,20 @@ class Parse():
         '''
 
         args=[]
-        results={}
-
+        #print('kwargs : ', kwargs)
         try:
-            selection = kwargs['selection']
-            resultat = kwargs['resultat']
-        except KeyError:
-            raise("les keys arguments sont malformés, ces derniers doivent contenir les clés 'resultat' et 'selection'")
-
+            selection, resultat = kwargs['selection'].copy(), kwargs['resultat'].copy()
+        except:
+            raise Exception("les keys arguments sont malformés, ces derniers doivent contenir les clés 'resultat' et 'selection' kwargs : {}".format(kwargs))
+        # print("selection, args ", kwargs, selection, args)
         if 'type' in selection:
             args.append(selection.pop('type'))
 
+
         ## Recherche de contenu
         recherche = self.soup.find_all(*args, attrs=selection)
-
-        ## Tri de la balise text
-        results.update({'text':contenu.text for contenu in recherche if 'text' in resultat})
-
-        ## Tri de la balise attrs pour ne garder que les attributs
-        results.update({j:item.attrs[j][0] if type(item.attrs[j])==list else item.attrs[j]
-                        for item in recherche for j in resultat.get('attrs', [])})
-
-        return results
+        #print(recherche)
+        return [{cle:item.get(cle) for cle in resultat.get('attrs') } for item in recherche ]
 
 
 

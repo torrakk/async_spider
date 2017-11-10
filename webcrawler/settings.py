@@ -3,7 +3,7 @@ STATIC='C:\\Users\\pcarrot\\Downloads'
 
 # Adresse du guichet adresse
 GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/login'
-# GUICHET_ADRESSE = 'http://www.loiresemene.fr'
+#GUICHET_ADRESSE = 'http://www.loire-semene.fr/'
 
 # Login
 LOGIN='******'
