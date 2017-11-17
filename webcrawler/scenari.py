@@ -34,6 +34,8 @@ class scenari():
                       'scenari':None,
                       'session':None}
 
+    url_visited = set()
+
     def __init__(self, **kwargs):
         '''
         Lors de l'initialisation nous demandons les arguments suivants
@@ -54,6 +56,7 @@ class scenari():
 
         actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session']
         Counter.tasks += 1
+        print(Counter.tasks)
         # print(self.count)
         assert list(self.kwargs.keys()) == actions, \
             "Votre scenari est malformé, " \
@@ -87,7 +90,8 @@ class scenari():
         :return: 
         '''
         Counter.tasks -= 1
-        print(future.result())
+        print(Counter.tasks)
+        print("Nous sommes dans le callback: " , future.result())
         # print(self.kwargs)
         if  self.kwargs['links']:
             self.produceLinks(self.kwargs['links'], self.page)
@@ -96,6 +100,17 @@ class scenari():
             self.kwargs['scenari'].update({'session': self.session})
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.ensure_future(scenar.run())
+        print("url visitée 1 fois: ", len(self.url_visited), "\n")
+        self.__decoLoop()
+
+    def __decoLoop(self):
+        if Counter.tasks == 0:
+            print('Nous fermons la loop')
+            # Nous fermons toutes les sessions ouvertes
+            for url, session in Connect.session_pool.items():
+                #print('nous détruisons la session')
+                session.close()
+            self.loop.stop()
 
     def produceLinks(self, links, page):
         '''
@@ -105,11 +120,15 @@ class scenari():
         '''
 
         links_parse = Parse(page).list_parse(links['parse'])
+        print(links_parse)
         for list_balise in links_parse:
             for link in list_balise:
-                if self.kwargs['links']['scenari']:
+                if self.links['scenari'] and validateUrl(joinUrl(self.url, link['href']))  \
+                        and not joinUrl(self.url, link['href']) in self.url_visited:
 
                     modele = self.modele_scenari.copy()
+                    self.url_visited.add(joinUrl(self.url, link['href']))
+
                     modele.update({
                          'action': 'get',
                          'url': link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href']),
@@ -120,26 +139,26 @@ class scenari():
                          'session': None})
                     scenar = scenari(loop=self.loop, **modele)
                     asyncio.ensure_future(scenar.run())
+                else:
+                    print("url visitée 1 fois: ", len(self.url_visited), "\n")
 
     def print_fut(self, future):
         Counter.tasks -= 1
-        print(future.result())
-        if Counter.tasks == 0:
-            # Nous fermons toutes les sessions ouvertes
-            for url, session in Connect.session_pool.items():
-                session.close()
-            self.loop.stop()
+        print(Counter.tasks)
+        print("Nous sommes dans le print futures : ", future.result())
+        self.__decoLoop()
+
 
     async def run(self):
+        '''
+        Méthode permettant de crawler une page web et d'ajouter un callback en cascade.
+        :return: 
+        '''
         self.future.add_done_callback((self.callback_scenari if self.kwargs['scenari'] or self.kwargs['links'] else self.print_fut))
-        # self.future.add_done_callback((self.callback_scenari if self.kwargs['links'] != [] else self.print_fut))#or self.kwargs['links']!=[]
-        # try:
         self.session, self.page = await self.connect()
+        # print(Parse(self.page).getList(self.parse))
         return self.future.set_result(Parse(self.page).list_parse(self.parse)) if self.parse \
         else self.future.set_result(self.page)
-        # except (TypeError) as e:
-        #     print("nous stoppons il y a un problème de connexion {}".format(e))
-        #     self.loop.stop()
 
     def __repr__(self):
         return(str(self.__dict__))

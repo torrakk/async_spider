@@ -2,7 +2,8 @@
 STATIC='C:\\Users\\anonymous\\Downloads'
 
 # Adresse du guichet adresse
-GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/login'
+#GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/login'
+GUICHET_ADRESSE = 'https://www.data.gouv.fr/fr/search/?tag=haute-loire'
 
 # Login
 LOGIN='******'
