@@ -1,4 +1,5 @@
 import re
+import os
 import aiohttp
 import asyncio
 from contextlib import closing
@@ -28,6 +29,8 @@ class Connect(object):
             self.session = self.session_pool[self.scenari['url']] if self.scenari['url'] in self.session_pool.keys() \
                 else self.scenari.pop('session', None) or None
 
+        self.download_path = STATIC_PATH
+        self.nomfichier = re.compile(r'\"(?P<nomfichier>.*)\"')
 
     def testUrl(self, url):
         if not validateUrl(url):
@@ -45,9 +48,19 @@ class Connect(object):
         self.testUrl(kwargs['url'])
         print('url visitée :', kwargs['url'])
         try:
-
             async with self.session.__getattribute__(self.action)(**kwargs) as response:
                 assert response.status == 200
+                print(response.headers.get('Content-Type'))
+                # print(self.nomfichier.search(response.headers.get('Content-Disposition')))
+                if response.headers.get('Content-Type') == 'application/zip':
+                    # response.headers.get('Content-Disposition')
+                    nom_fichier = (self.nomfichier.search((response.headers.get('Content-Disposition'))).group('nomfichier'))
+                    with open(os.path.join(self.download_path, nom_fichier), 'wb') as fichier:
+                        while True:
+                            chunk = await response.content.read(10)
+                            if not chunk:
+                                break
+                            fichier.write(chunk)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:
             print('Nous avons un problèmes de connexion au site --> {}'.format(e))

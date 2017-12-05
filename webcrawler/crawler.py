@@ -33,34 +33,37 @@ class Crawler():
 
 if __name__=="__main__":
     loop = asyncio.get_event_loop()
+
     linkss = {
-                'parse': [{'selection': {'type': 'a'},
+                'parse': [{'selection': {'type': 'a', 'href': re.compile(u'format=SHP&projection=WGS84')},
                            'resultat': {'attrs': ['href', 'title', 'text']}}],
-                'futur_parse': [{'selection': {'type': 'a'},
-                                 'resultat': {'attrs': ['href', 'title', 'text']}}],
-                'links':[],
-            'scenari':True,
-                      'session': None,
-    'inject': {}, 'follow': True}
+                'links':None,
+                'scenari':False,
+                'session': None,
+                'inject': {},
+                'follow': True
+             }
+
     links = {
-             'parse': [{'selection': {'type': 'a', 'string': re.compile('servitude')},
+             'parse': [{'selection': {'type': 'a', 'href': re.compile(u'servitude')},
                         'resultat': {'attrs': ['href','title', 'text']}}],
-             'futur_parse':[{'selection': {'type': 'a'},
-                        'resultat': {'attrs': ['href','title', 'text']}}],
-             'links': [],
-             'scenari':True,
-             'session':None,
-             'inject': {}, 'follow': True}
-    a = {'action': 'get', 'url': GUICHET_ADRESSE, 'data': CODES,
-     'parse': [{'selection': {'type': 'input', 'name': '_csrf_token'},
-                'resultat': {'text': '', 'attrs': ['value', ], }}]  , 'links':links, 'scenari':[], 'session':None}
-    # print(loop)
-    robot = Crawler(scenario=[{'action': 'get', 'url': GUICHET_ADRESSE, 'data': CODES, 'parse':[{'selection': {'type': 'a', 'string': re.compile('servitude')},
-                                                                                                  'resultat': {'attrs': ['href','title', 'text']}}]
-                             , 'links': [],'scenari': [], 'session':None} #for i in range(0,500)
+             'links': linkss,
+             'scenari': True,
+             'session': None,
+             'inject': {},
+             'follow': False
+            }
 
-                            ]
 
+    robot = Crawler(scenario=[{'action': 'get',
+                               'url': GUICHET_ADRESSE,
+                               'data': CODES,
+                               'parse':[{'selection': {'type': 'a', 'href': re.compile('servitude')},
+                                         'resultat': {'attrs': ['href','title', 'text']}}],
+                               'links':links,
+                               'scenari': [],
+                               'session':None} #for i in range(0,500)
+                              ]
                             , loop=loop )
     # print(loop)
     parse_guichet_adresse = {'selection': {'type': 'input', 'name': '_csrf_token'},
