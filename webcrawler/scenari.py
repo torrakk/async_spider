@@ -32,7 +32,9 @@ class scenari():
                       'parse':None,
                       'links':None,
                       'scenari':None,
-                      'session':None}
+                      'session':None,
+                      'with_parents':None
+                    }
 
     url_visited = set()
 
@@ -54,7 +56,7 @@ class scenari():
         self.future = asyncio.Future()
         self.kwargs = kwargs
 
-        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session']
+        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session', 'with_parents']
         Counter.tasks += 1
         # print(Counter.tasks)
         # print(self.count)
@@ -90,22 +92,23 @@ class scenari():
         :return: 
         '''
         Counter.tasks -= 1
-        print("Nous en sommes à la tâche :", Counter.tasks)
-        print("Nous sommes dans le callback: " , future.result())
-        print('Links ' , self.kwargs['links'])
+        # print("Nous en sommes à la tâche :", Counter.tasks)
+        #print("Nous sommes dans le callback: " , future.result())
+        #print('Links ' , self.kwargs['links'])
         ##Nous produisons les liens sous forme de scenari
-        if  self.kwargs['links']:
+        if  self.kwargs['links'] and not self.kwargs['links'].get('follow', None):
             self.produceLinks(self.kwargs['links'], self.page)
 
         ##Si nous n'avons pas de lien à poursuivre, alors nous les suivons
-        if self.kwargs['links'].get('follow', None) :
+            #print('kwargs links ', self.kwargs['links'])
+        if self.kwargs['links'] and self.kwargs['links'].get('follow', None) :
             self.followLinks(self.kwargs, future.result())
 
         if self.scenari and type(self.scenari) is not bool:
             self.kwargs['scenari'].update({'session': self.session})
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.ensure_future(scenar.run())
-        print("url visitée 1 fois: ", len(self.url_visited), "\n")
+        # print("url visitée 1 fois: ", len(self.url_visited),"\n", self.url_visited, "\n")
         self.__decoLoop()
 
     def __decoLoop(self):
@@ -133,7 +136,7 @@ class scenari():
                 'links': [],
                 'scenari': True,
                 'session': None})
-                print("Nous allons visiter l'url via follow, ", modele)
+                print("Nous allons visiter l'url via follow, ", modele['url'])
                 scenar = scenari(loop=self.loop, **modele)
                 asyncio.ensure_future(scenar.run())
 
@@ -162,11 +165,11 @@ class scenari():
                          'links': self.links['links'],
                          'scenari': True,
                          'session': None})
-                    print("Nous allons visiter l'url, ", modele)
+                    print("Nous allons visiter l'url via produce links, ", modele['url'])
                     scenar = scenari(loop=self.loop, **modele)
                     asyncio.ensure_future(scenar.run())
                 else:
-                    print("url visitée 1 fois: ", len(self.url_visited), "\n")
+                    print("url déja visitée 1 fois: ", len(self.url_visited),'\nurl déjà visitée : ',joinUrl(self.url, link['href']), "\n")
 
     def print_fut(self, future):
         Counter.tasks -= 1

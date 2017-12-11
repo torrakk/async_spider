@@ -50,17 +50,18 @@ class Connect(object):
         try:
             async with self.session.__getattribute__(self.action)(**kwargs) as response:
                 assert response.status == 200
-                print(response.headers.get('Content-Type'))
-                # print(self.nomfichier.search(response.headers.get('Content-Disposition')))
                 if response.headers.get('Content-Type') == 'application/zip':
                     # response.headers.get('Content-Disposition')
-                    nom_fichier = (self.nomfichier.search((response.headers.get('Content-Disposition'))).group('nomfichier'))
+                    nom_fichier = (self.nomfichier.search(( response.headers.get('Content-Disposition'))).group('nomfichier'))
                     with open(os.path.join(self.download_path, nom_fichier), 'wb') as fichier:
                         while True:
                             chunk = await response.content.read(10)
+                            print('Téléchargement de ', nom_fichier, ' ', len(chunk),' kbits')
                             if not chunk:
                                 break
                             fichier.write(chunk)
+                            print("Téléchargement de ", nom_fichier)
+                            return (self.session,  nom_fichier)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:
             print('Nous avons un problèmes de connexion au site --> {}'.format(e))

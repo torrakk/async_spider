@@ -1,5 +1,5 @@
 # Chemin static local pour télécharger les fichiers
-STATIC_PATH='/home/xxxx/'
+STATIC_PATH='/home/paul/'
 
 # Adresse du guichet adresse
 #GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/login'

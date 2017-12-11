@@ -62,7 +62,9 @@ if __name__=="__main__":
                                          'resultat': {'attrs': ['href','title', 'text']}}],
                                'links':links,
                                'scenari': [],
-                               'session':None} #for i in range(0,500)
+                               'session':None,
+                               'with_parents': [{'selection': {'type': 'a', 'href': re.compile('servitude')},
+                                         'resultat': {'attrs': ['href','title', 'text']}}]} #for i in range(0,500)
                               ]
                             , loop=loop )
     # print(loop)
