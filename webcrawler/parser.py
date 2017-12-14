@@ -3,6 +3,8 @@
 
 ####
 from bs4 import BeautifulSoup
+from itertools import chain
+
 from webcrawler.utils import reorgPaquetGenerator
 
 
@@ -46,13 +48,43 @@ class Parse():
     
         '''
 
-        args=[]
+
         #print('kwargs : ', kwargs)
-        try:
-            selection, resultat = kwargs['selection'].copy(), kwargs['resultat'].copy()
-        except:
-            raise Exception("les keys arguments sont malformés, ces derniers doivent contenir les clés 'resultat' et 'selection' kwargs : {}".format(kwargs))
+        # try:
+        selection, resultat, specific = kwargs['selection'].copy(), kwargs['resultat'].copy(),\
+                                  kwargs.get('specific_bs', None)
+        # except:
+        #     raise Exception("les keys arguments sont malformés, ces derniers doivent contenir les clés 'resultat' et 'selection' kwargs : {}".format(kwargs.keys()))
         # print("selection, args ", kwargs, selection, args)
+        result = self.soup
+
+        try:
+            for recherche in specific:
+                print(recherche)
+                args = []
+                for cle,valeurs in recherche.items():
+                    # try:
+                    if 'type' in valeurs:
+                        args.append(valeurs.pop('type'))
+                    if isinstance(result, list):
+                        print('nous sommes ici!', result[0], ' ', args,' ' , valeurs)
+                        print('test', getattr(result[0], cle)(*args, **valeurs))
+                        result = list(chain.from_iterable([getattr(resu, cle)(*args, **valeurs)  for resu in result \
+                                                           if getattr(resu, cle)(*args, **valeurs) ]))
+                    else:
+                        result = getattr(result, cle)(*args, **valeurs) if getattr(result, cle)(*args, **valeurs) else None
+
+
+            print(result)
+                    # result += result.__getattr__(cle)(**valeurs)
+                    # except (AttributeError, TypeError):
+                    #     print('L\'attribut demandé n\'existe pas :{}'.format(cle))
+
+        except (AttributeError) as e:
+            print("Nous n'avons pas de specific {}".format(e))
+        # finally:
+        #     print(result)
+        args = []
         if 'type' in selection:
             args.append(selection.pop('type'))
 

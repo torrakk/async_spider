@@ -121,7 +121,7 @@ class scenari():
             self.loop.stop()
 
     def followLinks(self, kwargs, result):
-
+        print(result)
         for link in result:
 
             href = link[0]['href']

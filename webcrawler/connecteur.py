@@ -55,12 +55,13 @@ class Connect(object):
                     nom_fichier = (self.nomfichier.search(( response.headers.get('Content-Disposition'))).group('nomfichier'))
                     with open(os.path.join(self.download_path, nom_fichier), 'wb') as fichier:
                         while True:
-                            chunk = await response.content.read(10)
-                            print('Téléchargement de ', nom_fichier, ' ', len(chunk),' kbits')
+                            chunk = await response.content.read()
+                            #print('Téléchargement de ', nom_fichier, ' ', len(chunk),' kbits')
                             if not chunk:
                                 break
                             fichier.write(chunk)
                             print("Téléchargement de ", nom_fichier)
+                            print("Le fichier pèse : ", os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko")
                             return (self.session,  nom_fichier)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:

@@ -45,21 +45,23 @@ if __name__=="__main__":
              }
 
     links = {
-             'parse': [{'selection': {'type': 'a', 'href': re.compile(u'servitude')},
+             'parse': [{'selection': {'type': 'a', 'href': re.compile('zC21Q6t0KL9ly')},
                         'resultat': {'attrs': ['href','title', 'text']}}],
-             'links': linkss,
-             'scenari': True,
+             'links': None,
+             'scenari': False,
              'session': None,
              'inject': {},
-             'follow': False
+             'follow': True
             }
 
 
     robot = Crawler(scenario=[{'action': 'get',
                                'url': GUICHET_ADRESSE,
                                'data': CODES,
-                               'parse':[{'selection': {'type': 'a', 'href': re.compile('servitude')},
-                                         'resultat': {'attrs': ['href','title', 'text']}}],
+                               'parse':[{'selection': {'type': 'div', 'href': re.compile('zC21Q6t0KL9ly')},
+                                         'resultat': {'attrs': ['href','title', 'text']},
+                                         'specific_bs': [{'find_all':{'type':'div'}}, {'find_all':{'type':'a', 'href':True}}, {'find_all':{'type':'a', 'href':True}}
+                                                         ]}],
                                'links':links,
                                'scenari': [],
                                'session':None,
