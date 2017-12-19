@@ -51,22 +51,22 @@ if __name__=="__main__":
              'scenari': False,
              'session': None,
              'inject': {},
-             'follow': True
+             'follow': False
             }
 
 
     robot = Crawler(scenario=[{'action': 'get',
                                'url': GUICHET_ADRESSE,
                                'data': CODES,
-                               'parse':[{'selection': {'type': 'div', 'href': re.compile('zC21Q6t0KL9ly')},
-                                         'resultat': {'attrs': ['href','title', 'text']},
-                                         'specific_bs': [{'find_all':{'type':'div'}}, {'find_all':{'type':'a', 'href':True}}, {'find_all':{'type':'a', 'href':True}}
-                                                         ]}],
-                               'links':links,
+                               'parse':[{'selection': [{'find_all': {'type': 'div'}}, {'find_all': {'type': 'a', 'href': True}}
+                                                       ],
+                                         'results': {'href':'attribut1','title':'attribut2', 'text':'attribut3'},
+                                         'mapping_fields': [],
+                                         'with_parents': []
+                                         }],
+                               'links': links,
                                'scenari': [],
-                               'session':None,
-                               'with_parents': [{'selection': {'type': 'a', 'href': re.compile('servitude')},
-                                         'resultat': {'attrs': ['href','title', 'text']}}]} #for i in range(0,500)
+                               'session':None,}
                               ]
                             , loop=loop )
     # print(loop)

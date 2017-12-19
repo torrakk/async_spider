@@ -26,6 +26,7 @@ class scenari():
     
     '''
     modele_scenari = {
+                      'loop': None,
                       'action':None,
                       'url':None,
                       'data':None,
@@ -33,7 +34,6 @@ class scenari():
                       'links':None,
                       'scenari':None,
                       'session':None,
-                      'with_parents':None
                     }
 
     url_visited = set()
@@ -56,7 +56,7 @@ class scenari():
         self.future = asyncio.Future()
         self.kwargs = kwargs
 
-        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session', 'with_parents']
+        actions = list(self.modele_scenari.keys())
         Counter.tasks += 1
         # print(Counter.tasks)
         # print(self.count)
@@ -93,7 +93,7 @@ class scenari():
         '''
         Counter.tasks -= 1
         # print("Nous en sommes à la tâche :", Counter.tasks)
-        #print("Nous sommes dans le callback: " , future.result())
+        print("Nous sommes dans le callback: " , future.result())
         #print('Links ' , self.kwargs['links'])
         ##Nous produisons les liens sous forme de scenari
         if  self.kwargs['links'] and not self.kwargs['links'].get('follow', None):
@@ -121,9 +121,9 @@ class scenari():
             self.loop.stop()
 
     def followLinks(self, kwargs, result):
+
         print(result)
         for link in result:
-
             href = link[0]['href']
             # url = link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href'])
             if validateUrl(href) and not href in self.url_visited :
@@ -173,8 +173,8 @@ class scenari():
 
     def print_fut(self, future):
         Counter.tasks -= 1
-        print(Counter.tasks)
-        # print("Nous sommes dans le print futures : ", future.result())
+        # print(Counter.tasks)
+        print("Nous sommes dans le print futures : ", future.result())
         self.__decoLoop()
 
 

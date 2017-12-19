@@ -49,51 +49,28 @@ class Parse():
         '''
 
 
-        #print('kwargs : ', kwargs)
-        # try:
-        selection, resultat, specific = kwargs['selection'].copy(), kwargs['resultat'].copy(),\
-                                  kwargs.get('specific_bs', None)
-        # except:
-        #     raise Exception("les keys arguments sont malformés, ces derniers doivent contenir les clés 'resultat' et 'selection' kwargs : {}".format(kwargs.keys()))
-        # print("selection, args ", kwargs, selection, args)
+        selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
+                                  kwargs.get('with_parents', None)
+
         result = self.soup
 
-        try:
-            for recherche in specific:
-                print(recherche)
-                args = []
-                for cle,valeurs in recherche.items():
-                    # try:
-                    if 'type' in valeurs:
-                        args.append(valeurs.pop('type'))
-                    if isinstance(result, list):
-                        print('nous sommes ici!', result[0], ' ', args,' ' , valeurs)
-                        print('test', getattr(result[0], cle)(*args, **valeurs))
-                        result = list(chain.from_iterable([getattr(resu, cle)(*args, **valeurs)  for resu in result \
-                                                           if getattr(resu, cle)(*args, **valeurs) ]))
-                    else:
-                        result = getattr(result, cle)(*args, **valeurs) if getattr(result, cle)(*args, **valeurs) else None
+        for recherche in selection:
+            # print('recherche imbriquée :',recherche)
+            args = []
+            for cle, valeurs in recherche.items():
+                # try:
+                if 'type' in valeurs:
+                    args.append(valeurs.pop('type'))
+                if isinstance(result, list):
 
+                    ## Nous iterons sur les méthodes de beautiful soup sur lesquelles itérer
+                    ## Nous applatissons ensuite la liste pour faire remonter les résultats
+                    result = list(chain.from_iterable([getattr(resu, cle)(*args, **valeurs)  for resu in result \
+                                                       if getattr(resu, cle)(*args, **valeurs) ]))
+                else:
+                    result = getattr(result, cle)(*args, **valeurs) if getattr(result, cle)(*args, **valeurs) else None
 
-            print(result)
-                    # result += result.__getattr__(cle)(**valeurs)
-                    # except (AttributeError, TypeError):
-                    #     print('L\'attribut demandé n\'existe pas :{}'.format(cle))
-
-        except (AttributeError) as e:
-            print("Nous n'avons pas de specific {}".format(e))
-        # finally:
-        #     print(result)
-        args = []
-        if 'type' in selection:
-            args.append(selection.pop('type'))
-
-
-        ## Recherche de contenu
-        recherche = self.soup.find_all(*args, attrs=selection)
-        # print(selection)
-        # print(recherche)
-        return [{cle:item.get(cle) if cle != 'text' else item.getText().strip() for cle in resultat.get('attrs') } for item in recherche ]
+        return [{cle:item.get(cle) if cle != 'text' else item.getText().strip() for cle in resultat.keys()} for item in result ]
 
 
     def getList(self, list_baliz):
