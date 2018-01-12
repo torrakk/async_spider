@@ -51,26 +51,34 @@ class Parse():
 
         selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
                                   kwargs.get('with_parents', None)
-
+        # print("selection : ",selection)
+        # if with_parents:
+        #     results_parents = self.list_parse(with_parents)
+        #     print('resultats_parents', results_parents)
         result = self.soup
-
+        # print("selection ", selection)
         for recherche in selection:
             # print('recherche imbriquée :',recherche)
             args = []
             for cle, valeurs in recherche.items():
                 # try:
-                if 'type' in valeurs:
-                    args.append(valeurs.pop('type'))
+                val = valeurs.copy()
+                if 'type' in val:
+                    args.append(val.pop('type'))
                 if isinstance(result, list):
-
+                    # print("val : ", val)
                     ## Nous iterons sur les méthodes de beautiful soup sur lesquelles itérer
                     ## Nous applatissons ensuite la liste pour faire remonter les résultats
-                    result = list(chain.from_iterable([getattr(resu, cle)(*args, **valeurs)  for resu in result \
-                                                       if getattr(resu, cle)(*args, **valeurs) ]))
+                    result = list(chain.from_iterable([getattr(resu, cle)(*args, **val)  for resu in result \
+                                                       if getattr(resu, cle)(*args, **val) ]))
                 else:
-                    result = getattr(result, cle)(*args, **valeurs) if getattr(result, cle)(*args, **valeurs) else None
-
-        return [{cle:item.get(cle) if cle != 'text' else item.getText().strip() for cle in resultat.keys()} for item in result ]
+                    # print("val : ", val)
+                    result = getattr(result, cle)(*args, **val) if getattr(result, cle)(*args, **val) else None
+        if result:
+            return [{cle:item.get(cle) if cle != 'text' else item.getText().strip() \
+                                          for cle in resultat.keys()} for item in result ]
+        else:
+            return
 
 
     def getList(self, list_baliz):

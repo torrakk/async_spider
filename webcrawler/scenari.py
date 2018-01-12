@@ -6,6 +6,7 @@ import time
 from webcrawler.parser import Parse
 from webcrawler.connecteur import Connect
 from webcrawler.utils import validateUrl, joinUrl
+# from webcrawler.logging import log
 # from webcrawler.crawler import crawlTime
 
 
@@ -24,9 +25,23 @@ class scenari():
     2) Parser ce qu'il y a à parser
     3) Ajouter un scenari enfant avec le resultat de 1 et 2
     
+    Plusieurs cas possibles sont identfiés :
+    
+    
+    
+    
+    
+                                         /---> cas 1 : Nous parsons et injecons les données---> si un scenari est défini
+                                        /              nous revenons au debut du schema, voir télécharger des données si
+                                        /              si c'est un zip
+                          parsage      /
+   1) visite d'une page ---------------------> cas 2 : Nous suivons les liens pour parser ( et/ou pas ) injecter les
+                                       \               données, voir télécharger des données.
+                                        \              
+                                         \
+                                          \---> cas 3 : 
     '''
     modele_scenari = {
-                      'loop': None,
                       'action':None,
                       'url':None,
                       'data':None,
@@ -52,11 +67,16 @@ class scenari():
         scenari : suite de l'algorithme autre page à visiter
         session : Session ouverte (objet clientSession) si le site est le même
         
+        Plusieurs cas sont possible :
+        1) nous voulons visiter une page et la parser --> injection des données
+        2) nous voulons visiter une page, la parser, suivre les liens +/- injection des données
+        3) nous voulons visiter une page, la parser, suivre les liens --> télécharger des données
+        
         '''
         self.future = asyncio.Future()
         self.kwargs = kwargs
 
-        actions = list(self.modele_scenari.keys())
+        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session']
         Counter.tasks += 1
         # print(Counter.tasks)
         # print(self.count)
@@ -93,15 +113,10 @@ class scenari():
         '''
         Counter.tasks -= 1
         # print("Nous en sommes à la tâche :", Counter.tasks)
-        print("Nous sommes dans le callback: " , future.result())
-        #print('Links ' , self.kwargs['links'])
-        ##Nous produisons les liens sous forme de scenari
-        if  self.kwargs['links'] and not self.kwargs['links'].get('follow', None):
-            self.produceLinks(self.kwargs['links'], self.page)
-
-        ##Si nous n'avons pas de lien à poursuivre, alors nous les suivons
-            #print('kwargs links ', self.kwargs['links'])
-        if self.kwargs['links'] and self.kwargs['links'].get('follow', None) :
+        # print("Nous sommes dans le callback: " , future.result())
+        # log.info(future.result())
+        ##Nous suivons les liens en produisant en scenari sans aboutir à un parsage
+        if self.kwargs['links'] :
             self.followLinks(self.kwargs, future.result())
 
         if self.scenari and type(self.scenari) is not bool:
@@ -122,23 +137,33 @@ class scenari():
 
     def followLinks(self, kwargs, result):
 
-        print(result)
-        for link in result:
-            href = link[0]['href']
-            # url = link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href'])
-            if validateUrl(href) and not href in self.url_visited :
-                modele = self.modele_scenari.copy()
-                modele.update({
-                'action': 'get',
-                'url': href,
-                'data': None,
-                'parse': [],
-                'links': [],
-                'scenari': True,
-                'session': None})
-                print("Nous allons visiter l'url via follow, ", modele['url'])
-                scenar = scenari(loop=self.loop, **modele)
-                asyncio.ensure_future(scenar.run())
+        # print(result)
+        ## Produit un scenari par resultat
+        for links in result:
+            try:
+                for link in links:
+                    href = link.get('href', None)
+                    url = href if validateUrl(href) else joinUrl(self.url, href)
+                    ##Nous vérifions l'url, si elle existe, si elle est bien formée puis nous produisons un scenari
+                    if not href in self.url_visited and href:
+                        modele = self.modele_scenari.copy()
+                        modele.update({
+                        'action': 'get',
+                        'url': url,
+                        'data': None,
+                        ## Nous allons chercher le parse du link donc l'url nous est remontée
+                        'parse': kwargs.get('links', [])['parse'],
+                        'links': kwargs.get('links', []),
+                        'scenari': True,
+                        'session': None})
+                        print("Nous allons visiter l'url via follow, ", modele['url'])
+                        scenar = scenari(loop=self.loop, **modele)
+                        asyncio.ensure_future(scenar.run())
+            ### Si nous avons des erreurs de Type ou de clé sur certains champs
+            ### alors nous ne pouvons pas produire de link
+            except (TypeError, KeyError) as e:
+                if 'href' in str(e):
+                    print("\n\n\n\n Les links sont : ",e ," " , links , "\n\n\n\n")
 
     def produceLinks(self, links, page):
         '''
@@ -146,9 +171,9 @@ class scenari():
         de recupérer les urls et de produire des objets scenari à partir de cela
         :return: 
         '''
+        print("les Links ",links['parse'])
         links_parse = Parse(page).list_parse(links['parse'])
 
-        # print(links_parse)
         for list_balise in links_parse:
             for link in list_balise:
                 if self.links['scenari'] and validateUrl(joinUrl(self.url, link['href']))  \
@@ -156,12 +181,16 @@ class scenari():
 
                     modele = self.modele_scenari.copy()
                     self.url_visited.add(joinUrl(self.url, link['href']))
+                    parse = None
+                    if  self.links['links'] :
+                        if self.links['links']['links']:
+                            parse = self.kwargs['links']['links']['parse']
 
                     modele.update({
                          'action': 'get',
                          'url': link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href']),
                          'data': None,
-                         'parse': self.kwargs['links']['links']['parse'] if self.kwargs['links']['links']['parse'] else None,
+                         'parse': parse,
                          'links': self.links['links'],
                          'scenari': True,
                          'session': None})

@@ -16,7 +16,10 @@ parents = {'parse': [{'selection': [{'find_all': {'type': 'div'}}, {'find_all': 
 enfants = {'parse': [{'selection': [{'find_all': {'type': 'div'}}, {'find_all': {'type': 'a', 'href': True}}
                            ],
            'results': {'href':'attribut', 'title':'attribut2', 'text':'attribut3'},
-           'with_parents': [parents],
+           'with_parents': [
+                            {'selection': [{'find_all': {'type': 'div'}}, {'find_all': {'type': 'a', 'href': True}}],
+                            'results': {'href':'attribut', 'title':'attribut2', 'text':'attribut3'},
+                            ],
            'mapping_fields': 'model'
                       }]
            }
