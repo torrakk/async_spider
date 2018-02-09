@@ -1,13 +1,12 @@
 import asyncio
 import time
-
+from logging2 import Logger
 
 
 from webcrawler.parser import Parse
 from webcrawler.connecteur import Connect
 from webcrawler.utils import validateUrl, joinUrl
-# from webcrawler.logging import log
-# from webcrawler.crawler import crawlTime
+from webcrawler.log import scenari_log
 
 
 
@@ -113,13 +112,16 @@ class scenari():
         '''
         Counter.tasks -= 1
         # print("Nous en sommes à la tâche :", Counter.tasks)
-        # print("Nous sommes dans le callback: " , future.result())
+        scenari_log.debug('Nous sommes dans le callback : ' + str(future.result()))
+        #print("Nous sommes dans le callback: " , future.result())
         # log.info(future.result())
         ##Nous suivons les liens en produisant en scenari sans aboutir à un parsage
         if self.kwargs['links'] :
+            scenari_log.debug('Nous traitons les liens {}'.format(self.kwargs['links']))
             self.followLinks(self.kwargs, future.result())
 
         if self.scenari and type(self.scenari) is not bool:
+            scenari_log.debug('Nous traitons un scenario {}'.format(self.scenari))
             self.kwargs['scenari'].update({'session': self.session})
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.ensure_future(scenar.run())
@@ -128,7 +130,7 @@ class scenari():
 
     def __decoLoop(self):
         if Counter.tasks == 0:
-            print('Nous fermons la loop')
+            scenari_log.info('Nous fermons la loop')
             # Nous fermons toutes les sessions ouvertes
             for url, session in Connect.session_pool.items():
                 #print('nous détruisons la session')
@@ -156,49 +158,49 @@ class scenari():
                         'links': kwargs.get('links', []),
                         'scenari': True,
                         'session': None})
-                        print("Nous allons visiter l'url via follow, ", modele['url'])
+                        scenari_log.info("Nous allons visiter l'url via follow, {}".format(modele['url']))
                         scenar = scenari(loop=self.loop, **modele)
                         asyncio.ensure_future(scenar.run())
             ### Si nous avons des erreurs de Type ou de clé sur certains champs
             ### alors nous ne pouvons pas produire de link
             except (TypeError, KeyError) as e:
                 if 'href' in str(e):
-                    print("\n\n\n\n Les links sont : ",e ," " , links , "\n\n\n\n")
+                    scenari_log.debug("\n\nErreur Les links sont : ",e ," " , links , "\n\n")
 
-    def produceLinks(self, links, page):
-        '''
-        Cette méthode permet de parser la page à partir du type de lien à parser
-        de recupérer les urls et de produire des objets scenari à partir de cela
-        :return: 
-        '''
-        print("les Links ",links['parse'])
-        links_parse = Parse(page).list_parse(links['parse'])
-
-        for list_balise in links_parse:
-            for link in list_balise:
-                if self.links['scenari'] and validateUrl(joinUrl(self.url, link['href']))  \
-                        and not joinUrl(self.url, link['href']) in self.url_visited:
-
-                    modele = self.modele_scenari.copy()
-                    self.url_visited.add(joinUrl(self.url, link['href']))
-                    parse = None
-                    if  self.links['links'] :
-                        if self.links['links']['links']:
-                            parse = self.kwargs['links']['links']['parse']
-
-                    modele.update({
-                         'action': 'get',
-                         'url': link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href']),
-                         'data': None,
-                         'parse': parse,
-                         'links': self.links['links'],
-                         'scenari': True,
-                         'session': None})
-                    print("Nous allons visiter l'url via produce links, ", modele['url'])
-                    scenar = scenari(loop=self.loop, **modele)
-                    asyncio.ensure_future(scenar.run())
-                else:
-                    print("url déja visitée 1 fois: ", len(self.url_visited),'\nurl déjà visitée : ',joinUrl(self.url, link['href']), "\n")
+    # def produceLinks(self, links, page):
+    #     '''
+    #     Cette méthode permet de parser la page à partir du type de lien à parser
+    #     de recupérer les urls et de produire des objets scenari à partir de cela
+    #     :return:
+    #     '''
+    #     print("les Links ",links['parse'])
+    #     links_parse = Parse(page).list_parse(links['parse'])
+    #
+    #     for list_balise in links_parse:
+    #         for link in list_balise:
+    #             if self.links['scenari'] and validateUrl(joinUrl(self.url, link['href']))  \
+    #                     and not joinUrl(self.url, link['href']) in self.url_visited:
+    #
+    #                 modele = self.modele_scenari.copy()
+    #                 self.url_visited.add(joinUrl(self.url, link['href']))
+    #                 parse = None
+    #                 if  self.links['links'] :
+    #                     if self.links['links']['links']:
+    #                         parse = self.kwargs['links']['links']['parse']
+    #
+    #                 modele.update({
+    #                      'action': 'get',
+    #                      'url': link['href'] if validateUrl(link['href']) else joinUrl(self.url, link['href']),
+    #                      'data': None,
+    #                      'parse': parse,
+    #                      'links': self.links['links'],
+    #                      'scenari': True,
+    #                      'session': None})
+    #                 print("Nous allons visiter l'url via produce links, ", modele['url'])
+    #                 scenar = scenari(loop=self.loop, **modele)
+    #                 asyncio.ensure_future(scenar.run())
+    #             else:
+    #                 print("url déja visitée 1 fois: ", len(self.url_visited),'\nurl déjà visitée : ',joinUrl(self.url, link['href']), "\n")
 
     def print_fut(self, future):
         Counter.tasks -= 1

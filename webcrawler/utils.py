@@ -1,6 +1,6 @@
 from django.core.validators import URLValidator, EmailValidator
 from django.core.exceptions import ValidationError
-
+from logging2 import Logger
 from urllib.parse import urljoin
 
 def joinUrl(*args):

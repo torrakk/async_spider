@@ -75,13 +75,11 @@ if __name__=="__main__":
                                                        ],
                                          'results': {'href':'attribut1','title':'attribut2', 'text':'attribut3'},
                                          'mapping_fields': [],
-                                         'with_parents': []
                                          },
                                         {'selection': [{'find_all': {'type': 'meta'}}
                                                        ],
                                          'results': {'name': 'attribut1', 'property': 'attribut2', 'content': 'attribut3'},
                                          'mapping_fields': [],
-                                         'with_parents': []
                                          }
                                         ],
                                'links': linkss,

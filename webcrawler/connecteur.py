@@ -5,10 +5,12 @@ import asyncio
 from contextlib import closing
 import socket
 import random
+# from logging2 import Logger
 
 from webcrawler.settings import *
 from webcrawler.exception import *
 from webcrawler.utils import validateUrl
+from webcrawler.log import connect_log
 
 class Connect(object):
     # Variable permettant de partager les sessions en fonction des urls visitées et les fermer proprement /
@@ -25,6 +27,7 @@ class Connect(object):
         self.scenari = scenari
         self.action, self.session = (self.scenari.pop(keys) for keys in ('action', 'session'))
         # si une session existe quelque part nous la prennons
+
         if not self.session:
             self.session = self.session_pool[self.scenari['url']] if self.scenari['url'] in self.session_pool.keys() \
                 else self.scenari.pop('session', None) or None
@@ -46,7 +49,7 @@ class Connect(object):
         '''
 
         self.testUrl(kwargs['url'])
-        print('url visitée :', kwargs['url'])
+        connect_log.info('url visitée : {}'.format(kwargs['url']))
         try:
             async with self.session.__getattribute__(self.action)(**kwargs) as response:
                 assert response.status == 200
@@ -65,7 +68,8 @@ class Connect(object):
                             return (self.session,  nom_fichier)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:
-            print('Nous avons un problèmes de connexion au site --> {}'.format(e))
+            connect_log.debug('Nous avons un problèmes de connexion au site --> {}'.format(e))
+            #print('Nous avons un problèmes de connexion au site --> {}'.format(e))
 
     async def request(self):
         if not self.session:
