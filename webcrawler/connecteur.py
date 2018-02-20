@@ -63,12 +63,12 @@ class Connect(object):
                             if not chunk:
                                 break
                             fichier.write(chunk)
-                            print("Téléchargement de ", nom_fichier)
-                            print("Le fichier pèse : ", os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko")
+                            connect_log.info("Téléchargement de {}".format(nom_fichier))
+                            connect_log.info("Le fichier pèse : {0} {1}".format(os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko"))
                             return (self.session,  nom_fichier)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:
-            connect_log.debug('Nous avons un problèmes de connexion au site --> {}'.format(e))
+            connect_log.debug('Nous avons un problèmes de connexion au site {}--> {}'.format(kwargs['url'], e))
             #print('Nous avons un problèmes de connexion au site --> {}'.format(e))
 
     async def request(self):
@@ -88,5 +88,7 @@ class Connect(object):
 if __name__ == '__main__':
 
     with closing(asyncio.get_event_loop()) as loop:
-        con = Connect({'action':'post_request','url':GUICHET_ADRESSE, 'data':CODES })
-        loop.run_until_complete(con.do_scenari())
+        con = Connect(**{'action':'get','url':'http://www.loire-semene.fr/', 'data':CODES , 'session': None })
+        requete = loop.run_until_complete(con.request())
+        print(requete)
+        requete[0].close()

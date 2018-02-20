@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from itertools import chain
 
 from webcrawler.utils import reorgPaquetGenerator
+from webcrawler.log import parse_log
 
 
 class Parse():
@@ -63,6 +64,8 @@ class Parse():
             for cle, valeurs in recherche.items():
                 # try:
                 val = valeurs.copy()
+                # print(val)
+                parse_log.debug('Nous recherchons dans la page : '+ str(valeurs))
                 if 'type' in val:
                     args.append(val.pop('type'))
                 if isinstance(result, list):
@@ -72,9 +75,9 @@ class Parse():
                     result = list(chain.from_iterable([getattr(resu, cle)(*args, **val)  for resu in result \
                                                        if getattr(resu, cle)(*args, **val) ]))
                 else:
-                    # print("val : ", val)
-                    result = getattr(result, cle)(*args, **val) if getattr(result, cle)(*args, **val) else None
+                    result = getattr(result, cle)(*args, attrs=val) if getattr(result, cle)(*args, attrs=val) else None
         if result:
+            parse_log.debug(str(result))
             return [{cle:item.get(cle) if cle != 'text' else item.getText().strip() \
                                           for cle in resultat.keys()} for item in result ]
         else:

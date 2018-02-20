@@ -30,7 +30,7 @@ class scenari():
     
     
     
-                                         /---> cas 1 : Nous parsons et injecons les données---> si un scenari est défini
+                                         /---> cas 1 : Nous parsons et injectons les données---> si un scenari est défini
                                         /              nous revenons au debut du schema, voir télécharger des données si
                                         /              si c'est un zip
                           parsage      /
@@ -38,7 +38,7 @@ class scenari():
                                        \               données, voir télécharger des données.
                                         \              
                                          \
-                                          \---> cas 3 : 
+    
     '''
     modele_scenari = {
                       'action':None,
@@ -100,6 +100,7 @@ class scenari():
         Nous preparons les arguments pour qu'ils ne concernent que l'action à engager
         :return: 
         '''
+        scenari_log.info('future connexion : ' + str(self.kwargs['url']) )
         co = Connect(**{ key: value for key, value in self.kwargs.items() if key in ('action', 'url', 'data', 'session')})
         return await co.request()
 
@@ -111,17 +112,17 @@ class scenari():
         :return: 
         '''
         Counter.tasks -= 1
-        # print("Nous en sommes à la tâche :", Counter.tasks)
+        scenari_log.debug("Nous en sommes à la tâche : {}".format(Counter.tasks))
         scenari_log.debug('Nous sommes dans le callback : ' + str(future.result()))
         #print("Nous sommes dans le callback: " , future.result())
         # log.info(future.result())
         ##Nous suivons les liens en produisant en scenari sans aboutir à un parsage
         if self.kwargs['links'] :
-            scenari_log.debug('Nous traitons les liens {}'.format(self.kwargs['links']))
+            #scenari_log.info('Nous traitons les liens {}'.format(self.kwargs['links']))
             self.followLinks(self.kwargs, future.result())
 
         if self.scenari and type(self.scenari) is not bool:
-            scenari_log.debug('Nous traitons un scenario {}'.format(self.scenari))
+            scenari_log.info('Nous traitons un scenario {}'.format(self.scenari))
             self.kwargs['scenari'].update({'session': self.session})
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.ensure_future(scenar.run())
@@ -165,7 +166,7 @@ class scenari():
             ### alors nous ne pouvons pas produire de link
             except (TypeError, KeyError) as e:
                 if 'href' in str(e):
-                    scenari_log.debug("\n\nErreur Les links sont : ",e ," " , links , "\n\n")
+                    scenari_log.error("\n\nErreur Les links sont : ",e ," " , links , "\n\n")
 
     # def produceLinks(self, links, page):
     #     '''
@@ -204,8 +205,8 @@ class scenari():
 
     def print_fut(self, future):
         Counter.tasks -= 1
-        # print(Counter.tasks)
-        print("Nous sommes dans le print futures : ", future.result())
+        scenari_log.info(Counter.tasks)
+        scenari_log.info("Nous sommes dans le print futures : " + str(future.result()))
         self.__decoLoop()
 
 
@@ -215,7 +216,12 @@ class scenari():
         :return: 
         '''
         self.future.add_done_callback((self.callback_scenari if self.kwargs['scenari'] or self.kwargs['links'] else self.print_fut))
-        self.session, self.page = await self.connect()
+
+        try:
+            self.session, self.page = await self.connect()
+        except (TypeError) as e:
+            scenari_log.error('Erreur {} \n {}'.format(e,self.kwargs))
+
         # print(Parse(self.page).getList(self.parse))
         return self.future.set_result(Parse(self.page).list_parse(self.parse)) if self.parse \
         else self.future.set_result(self.page)
