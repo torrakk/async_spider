@@ -7,17 +7,17 @@ def joinUrl(*args):
     return urljoin(*args)
 
 
-def validateUrl(url):
+def validateUrl(*urls):
     val = URLValidator()
     email = EmailValidator()
-    try:
-        val(url)
-        if 'mailto' not in url:
-            return True
-        else:
-            return
-    except(ValidationError):
-        return
+    for url in urls:
+        try:
+            val(url)
+            if 'mailto' not in url:
+                yield url
+        except(ValidationError, AttributeError):
+            continue
+            #print('Nous avons une erreur de validation d\'url {}'.format(url))
 
 def reorgPaquetGenerator(list, pas):
     if pas == 0:

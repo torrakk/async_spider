@@ -7,6 +7,7 @@ import socket
 import random
 # from logging2 import Logger
 
+
 from webcrawler.settings import *
 from webcrawler.exception import *
 from webcrawler.utils import validateUrl
@@ -17,20 +18,21 @@ class Connect(object):
     # une fois que ces dernières ont été visitées
     session_pool = {}
 
-    def __init__(self, **scenari):
+    def __init__(self, scenar_obj,**scenar):
         '''
         L'objet connect permet de se connecter au guichet adresse et d'interrragir avec ce dernier
         :param adresse: adresse à laquelle se connecter (chaine de caractère)
         :param credentials: login et mdp contenues dans un dictionnaire
         '''
         #self.session = session
-        self.scenari = scenari
-        self.action, self.session = (self.scenari.pop(keys) for keys in ('action', 'session'))
+        self.scenar = scenar
+        self.scenar_obj = scenar_obj
+        self.action, self.session = (self.scenar.pop(keys) for keys in ('action', 'session'))
         # si une session existe quelque part nous la prennons
 
         if not self.session:
-            self.session = self.session_pool[self.scenari['url']] if self.scenari['url'] in self.session_pool.keys() \
-                else self.scenari.pop('session', None) or None
+            self.session = self.session_pool[self.scenar['url']] if self.scenar['url'] in self.session_pool.keys() \
+                else self.scenar.pop('session', None) or None
 
         self.download_path = STATIC_PATH
         self.nomfichier = re.compile(r'\"(?P<nomfichier>.*)\"')
@@ -53,6 +55,7 @@ class Connect(object):
         try:
             async with self.session.__getattribute__(self.action)(**kwargs) as response:
                 assert response.status == 200
+                self.scenar_obj.url_visited.append(kwargs.get('url'))
                 if response.headers.get('Content-Type') == 'application/zip':
                     # response.headers.get('Content-Disposition')
                     nom_fichier = (self.nomfichier.search(( response.headers.get('Content-Disposition'))).group('nomfichier'))
@@ -67,18 +70,18 @@ class Connect(object):
                             connect_log.info("Le fichier pèse : {0} {1}".format(os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko"))
                             return (self.session,  nom_fichier)
                 return (self.session, await response.text())
-        except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, socket.gaierror) as e:
+        except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, aiohttp.client_exceptions.ClientOSError, socket.gaierror) as e:
             connect_log.debug('Nous avons un problèmes de connexion au site {}--> {}'.format(kwargs['url'], e))
             #print('Nous avons un problèmes de connexion au site --> {}'.format(e))
 
     async def request(self):
         if not self.session:
             self.session = aiohttp.ClientSession(raise_for_status=True)
-            self.session_pool[self.scenari.get('url')]=self.session
-            return await self._request(**self.scenari)
+            self.session_pool[self.scenar.get('url')]=self.session
+            return await self._request(**self.scenar)
         else:
             # print('nous sommes là !!')
-            return await self._request(**self.scenari)
+            return await self._request(**self.scenar)
 
 
 

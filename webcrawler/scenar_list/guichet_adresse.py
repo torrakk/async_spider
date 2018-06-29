@@ -7,7 +7,7 @@ linkss = {
         'parse': [
                   {'selection': [{'find_all': {'type': 'a', }},
                                  ],
-                   'results': {'text': 'attribut3'},
+                   'results': {'text': 'attribut3', 'href':'href'},
                    'mapping_fields': [],
                    'with_parents': []
                    }
@@ -25,16 +25,21 @@ dicto = [{'action': 'get',
    'data': '',
    'parse':[{'selection': [{'find_all': {'type': 'input', 'name':'_csrf_token'}}
                            ],
-             'results': {'name':'attribut1','type':'attribut2', 'value':'attribut3'},
+             'results': {'name':'name','type':'typo', 'value':'csrf_token'},
              'mapping_fields': [],
              },
             {'selection': [{'find_all': {'type': 'a',}}
                            ],
-             'results': {'text':'attribut1','target':'attribut2', 'href':'attribut3'},
+             'results': {'text':'attribut1','target':'attribut2', 'href':'href'},
+             'mapping_fields': [],
+             },
+             {'selection': [{'find_all': {'type': 'div', 'class':"form-group"}}, {'find_all': {'type': 'input', 'class':'form-control'}}
+                           ],
+             'results': {'id':'id unique', 'name':'name','type':'type de saisie', 'class':'classe'},
              'mapping_fields': [],
              },
             ],
-   'links': linkss,
+   'links': linkss,#linkss, #linkss,
    'scenari': [],
    'session':None,}]
 

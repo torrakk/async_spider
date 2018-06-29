@@ -5,7 +5,7 @@ data_servitude_haute_loire = 'https://www.data.gouv.fr/fr/search/?q=servitude+ha
 linkss = {
         'parse': [{'selection': [{'find_all': {'type': 'a', 'href': re.compile(u'format=SHP&projection=WGS84')}},
                                      ],
-                       'results': {'href': 'attribut1', 'title': 'attribut2', 'text': 'attribut3'},
+                       'results': {'href': 'href', 'title': 'attribut2', 'text': 'attribut3'},
                        'mapping_fields': [],
                        'with_parents': []
                        },
@@ -23,7 +23,7 @@ dicto = [{'action': 'get',
    'data': '',
    'parse':[{'selection': [{'find_all': {'type': 'a', 'href':re.compile('-servitude-')}}
                                                        ],
-                                         'results': {'href':'attribut1','title':'attribut2', },
+                                         'results': {'href':'href','title':'attribut2', },
                                          'mapping_fields': [],
                                          },
             ],

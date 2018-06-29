@@ -1,10 +1,33 @@
 from bs4 import BeautifulSoup
 import re
 import urllib3
+from operator import xor
 
-nomfichier = re.compile('(?P<nomfichier>.*)')
-fichier = 'attachment; filename="AssiettesdeservitudeEL3lieeaux.zip"'
-print(nomfichier.search(fichier))
+# nomfichier = re.compile('(?P<nomfichier>.*)')
+# fichier = 'attachment; filename="AssiettesdeservitudeEL3lieeaux.zip"'
+# print(nomfichier.search(fichier))
+
+
+def dataSearch(data):
+    '''
+    Fait une recherche des données resultats pour les injecter dans les datas
+    envoyées lors du post
+    :param data: 
+    :param datasearch: 
+    :return: 
+    '''
+    # 1 va chercher la données à reprendre
+    reg = re.compile('^init:(.*)')
+    recherche = { reg.match(datakeys).group(1):values for datakeys, values in data.items() if reg.match(datakeys)}
+    print(recherche)
+    # if recherche:
+    #     return xor(recherche, data)
+    return
+
+
+data = {'quatre':'test', 'init:test': 'valeure'}
+
+print(dataSearch(data))
 # def generateur(list, pas):
 #     start = 0
 #     end = 0
