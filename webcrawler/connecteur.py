@@ -55,7 +55,7 @@ class Connect(object):
         try:
             async with self.session.__getattribute__(self.action)(**kwargs) as response:
                 assert response.status == 200
-                self.scenar_obj.url_visited.append(kwargs.get('url'))
+                self.scenar_obj.url_visited.add(kwargs.get('url'))
                 if response.headers.get('Content-Type') == 'application/zip':
                     # response.headers.get('Content-Disposition')
                     nom_fichier = (self.nomfichier.search(( response.headers.get('Content-Disposition'))).group('nomfichier'))

@@ -5,7 +5,7 @@ GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/map'
 linkss = {
 
         'parse': [
-                  {'selection': [{'find_all': {'type': 'a', }},
+                  {'selection': [{'find_all': {'type': 'a', 'href':re.compile('')}},
                                  ],
                    'results': {'text': 'attribut3', 'href':'href'},
                    'mapping_fields': [],
@@ -39,7 +39,7 @@ dicto = [{'action': 'get',
              'mapping_fields': [],
              },
             ],
-   'links': linkss,#linkss, #linkss,
+   'links': [], #linkss,#linkss, #linkss,
    'scenari': [],
    'session':None,}]
 

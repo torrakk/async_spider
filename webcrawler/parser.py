@@ -3,6 +3,7 @@
 
 ####
 from bs4 import BeautifulSoup
+import bs4
 from itertools import chain
 
 from webcrawler.utils import reorgPaquetGenerator
@@ -49,6 +50,7 @@ class Parse():
         except(KeyError):
             print("le mapping est incorrect \n-orig : {0}\n-reuslts : {1}".format(orig, results))
 
+
     def __getBFmethod(self, resu, cle):
         '''
         Méthode permettant d'accéder aux méthodes de beautifulSoup
@@ -59,6 +61,10 @@ class Parse():
         if hasattr(resu, cle):
             return getattr(resu, cle)
         return
+
+    def resultSetIter(self, resultSet):
+        for result in resultSet:
+            yield result
 
     def parse(self, **kwargs):
 
@@ -80,30 +86,57 @@ class Parse():
 
         result = self.soup
         # print("selection ", selection)
+        #parse_log.debug("Chainage des Methodes Beautiful Soup " + str(
         for recherche in selection:
-            args = []
-            for cle, valeurs in recherche.items():
-                # try:
-                parse_log.debug('Item recherchés :'+ str(recherche.items()))
-                val = valeurs.copy()
-                # print(val)
-                parse_log.debug('Nous recherchons dans la page : '+ str(valeurs))
-                if 'type' in val:
-                    args.append(val.pop('type'))
-                if isinstance(result, list):
-                    ## Nous iterons sur les méthodes de beautiful soup sur lesquelles itérer
-                    ## Nous applatissons ensuite la liste pour faire remonter les résultats
-                    parse_log.debug("Chainage des Methodes Beautiful Soup "+str([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
-                    result = list(chain.from_iterable([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
-                else:
-                    result = self.__getBFmethod(result, cle)(*args, attrs=val)
+            #print(recherche)
+            for typeRecherche, valeursDeRecherche in recherche.items():
+                print( 'valeurs de recherche : ', valeursDeRecherche, ' Methode utilisée : ', typeRecherche)
+                if isinstance(result, bs4.element.ResultSet):
+                    #print("NOUS SOMMES ICI !")
+                    # liste_result =
+                    for methode in self.resultSetIter(result.copy()):
+                        print("NOUS SOMMES ICI !")
+                        result = self.__getBFmethod(methode, typeRecherche)(**valeursDeRecherche)
+                        print(result)
+                elif isinstance(result, bs4.BeautifulSoup):
+                    print('NOUS SOMMES LA !:')
+                    result = self.__getBFmethod(result, typeRecherche)(**valeursDeRecherche)
         if result:
-            parse_log.debug(str(result))
-            ## nous utilisons le fonction mapp pour rapprocher les resultat attendus et les resultats réels
-            return [self.__mapp(resultat,{cle:item.get(cle) if cle != 'text' else item.getText().strip() \
-                                          for cle in resultat.keys()}) for item in result ]
+            #parse_log.debug(str(result))
+            return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip() \
+                                                       for cle in resultat.keys()}) for item in result ]
         else:
             return
+        #print(result)
+        # [self.__getBFmethod(result, selector)(selector.pop('type') if selector.hasattr('type'), attrs=val) for selector in selection for , kwargs in selector.items()]))
+        # for recherche in selection:
+        #     print("recherche, ", recherche)
+        #     args = []
+        #     selection = selection.get()
+        #     args=[valeurs.copy() for recherche in selection for cle, valeurs in recherche.items()]
+        #     print(args)
+        #     for cle, valeurs in recherche.items():
+        #         # try:
+        #         parse_log.debug('Item recherchés :'+ str(recherche.items()))
+        #         val = valeurs.copy()
+        #         # print(val)
+        #         parse_log.debug('Nous recherchons dans la page : '+ str(valeurs))
+        #         if 'type' in val:
+        #             args.append(val.pop('type'))
+        #         if isinstance(result, list):
+        #             ## Nous iterons sur les méthodes de beautiful soup sur lesquelles itérer
+        #             ## Nous applatissons ensuite la liste pour faire remonter les résultats
+        #             parse_log.debug("Chainage des Methodes Beautiful Soup "+str([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
+        #             result = list(chain.from_iterable([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
+        #         else:
+        #             result = self.__getBFmethod(result, cle)(*args, attrs=val)
+        # if result:
+        #     parse_log.debug(str(result))
+        #     ## nous utilisons le fonction mapp pour rapprocher les resultat attendus et les resultats réels
+        #     return [self.__mapp(resultat,{cle:item.get(cle) if cle != 'text' else item.getText().strip() \
+        #                                   for cle in resultat.keys()}) for item in result ]
+        # else:
+        #     return
 
 
     def getList(self, list_baliz):

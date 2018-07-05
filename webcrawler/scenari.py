@@ -50,8 +50,8 @@ class scenari(object):
                       'scenari':None,
                       'session':None,
                     }
-
-    url_visited = []
+    ## variable de classe permettant de stocker touts les url visitées
+    url_visited = set()
 
     def __init__(self, **kwargs):
         '''
@@ -136,10 +136,9 @@ class scenari(object):
         if self.scenari and type(self.scenari) is not bool:
             scenari_log.info('Nous traitons un scenario {}'.format(self.scenari))
             self.kwargs['scenari'].update({'session': self.session})
-
             scenari_log.debug('Nous sommes dans le callback : ' + str(future.result()))
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
-            asyncio.ensure_future(scenar.run())
+            asyncio.gather(scenar.run())
         # print("url visitée 1 fois: ", len(self.url_visited),"\n", self.url_visited, "\n")
         self.__decoLoop()
 
@@ -169,7 +168,7 @@ class scenari(object):
         ##Nous vérifions l'url, si elle existe, si elle est bien formée puis nous produisons un scenari
 
         if not url in self.url_visited:
-            print(self.url_visited)
+            #print(self.url_visited)
             modele = self.modele_scenari.copy()
             modele.update({
                 'action': 'get',
@@ -183,7 +182,7 @@ class scenari(object):
             scenari_log.info("Nous allons visiter l'url via follow, {}".format(modele['url']))
             return True, modele
         else:
-            scenari_log.info("Nous ne visiterons pas l'url {} car \n elle a déjà été visitée".format(url))
+            scenari_log.info("Nous ne visiterons pas l'url {} car elle a déjà été visitée".format(url))
             return
 
     def followLinks(self, kwargs, result):
@@ -198,9 +197,9 @@ class scenari(object):
                 if self.modeleUpdateProducer(link, kwargs):
                     validite, modele = self.modeleUpdateProducer(link, kwargs)
                     scenar = scenari(loop=self.loop, **modele)
-                    asyncio.ensure_future(scenar.run())
+                    asyncio.gather(scenar.run())
                 else:
-                    print("on passe à côté \n", kwargs)
+                    scenari_log.debug("on passe à côté \n" + str(kwargs))
             ### Si nous avons des erreurs de Type ou de clé sur certains champs
             ### alors nous ne pouvons pas produire de link
             # except (TypeError, KeyError) as e:
