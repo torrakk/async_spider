@@ -66,6 +66,34 @@ class Parse():
         for result in resultSet:
             yield result
 
+    def rechercheBF(self, motif, element):
+        '''
+        Recherche BF est un generateur permettant de lancer 
+        de manière recursive des coroutines de recherche
+        
+        :param motif: tuple typeRecherche, valeursDeRecherche
+        :param element: bs4.BeautifulSoup or bs4.element.ResultSet
+        :param objetRetour: Variable a laquelle assigner une liste de resultat permettant de 
+        continuer la recherche
+        :return: resultat de recherche
+        '''
+        print(motif)
+        print(motif.items())
+        typeRecherche, valeursDeRecherche = list(motif.items())[0]
+        if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
+            print("NOUS SOMMES DANS UN RESULT SET OU une liste ", type(element))
+            # liste_result =
+            # TODO Lisser la liste de l'objet retour
+            objetRetour = [ self.rechercheBF(motif, result) for result in element]
+            return objetRetour
+        elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
+            print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !')
+            objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
+            print("objet_retour: ",objetRetour, type(objetRetour))
+            return objetRetour
+        print("Nous sommes dans un cas special ", type(element))
+        return
+
     def parse(self, **kwargs):
 
         '''
@@ -84,59 +112,27 @@ class Parse():
         selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
                                   kwargs.get('with_parents', None)
 
-        result = self.soup
-        # print("selection ", selection)
-        #parse_log.debug("Chainage des Methodes Beautiful Soup " + str(
-        for recherche in selection:
-            #print(recherche)
-            for typeRecherche, valeursDeRecherche in recherche.items():
-                print( 'valeurs de recherche : ', valeursDeRecherche, ' Methode utilisée : ', typeRecherche)
-                if isinstance(result, bs4.element.ResultSet):
-                    #print("NOUS SOMMES ICI !")
-                    # liste_result =
-                    for methode in self.resultSetIter(result.copy()):
-                        print("NOUS SOMMES ICI !")
-                        result = self.__getBFmethod(methode, typeRecherche)(**valeursDeRecherche)
-                        print(result)
-                elif isinstance(result, bs4.BeautifulSoup):
-                    print('NOUS SOMMES LA !:')
-                    result = self.__getBFmethod(result, typeRecherche)(**valeursDeRecherche)
+        page_bf = self.soup
+        print("selection ", selection)
+        #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
+        self.result_partiel = None
+        for selectionMotif in selection:
+            ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
+            ## nous prennons la page bf4
+            element = self.result_partiel if self.result_partiel else page_bf
+            self.result_partiel = self.rechercheBF(selectionMotif, element)
+        result = self.result_partiel
+        for i in result:
+            print(type(i), i, len(i))
+            for g in i:
+                print(type(g), g)
         if result:
             #parse_log.debug(str(result))
             return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip() \
                                                        for cle in resultat.keys()}) for item in result ]
         else:
             return
-        #print(result)
-        # [self.__getBFmethod(result, selector)(selector.pop('type') if selector.hasattr('type'), attrs=val) for selector in selection for , kwargs in selector.items()]))
-        # for recherche in selection:
-        #     print("recherche, ", recherche)
-        #     args = []
-        #     selection = selection.get()
-        #     args=[valeurs.copy() for recherche in selection for cle, valeurs in recherche.items()]
-        #     print(args)
-        #     for cle, valeurs in recherche.items():
-        #         # try:
-        #         parse_log.debug('Item recherchés :'+ str(recherche.items()))
-        #         val = valeurs.copy()
-        #         # print(val)
-        #         parse_log.debug('Nous recherchons dans la page : '+ str(valeurs))
-        #         if 'type' in val:
-        #             args.append(val.pop('type'))
-        #         if isinstance(result, list):
-        #             ## Nous iterons sur les méthodes de beautiful soup sur lesquelles itérer
-        #             ## Nous applatissons ensuite la liste pour faire remonter les résultats
-        #             parse_log.debug("Chainage des Methodes Beautiful Soup "+str([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
-        #             result = list(chain.from_iterable([ self.__getBFmethod(resu, cle)(*args, attrs=val) for resu in result]))
-        #         else:
-        #             result = self.__getBFmethod(result, cle)(*args, attrs=val)
-        # if result:
-        #     parse_log.debug(str(result))
-        #     ## nous utilisons le fonction mapp pour rapprocher les resultat attendus et les resultats réels
-        #     return [self.__mapp(resultat,{cle:item.get(cle) if cle != 'text' else item.getText().strip() \
-        #                                   for cle in resultat.keys()}) for item in result ]
-        # else:
-        #     return
+
 
 
     def getList(self, list_baliz):
@@ -165,53 +161,49 @@ if __name__=='__main__':
                    'resultat': {'attrs': ['class', 'text']}}
     nb_offre_de_paris = {'selection': {'type': 'span', 'class': 'KambiBC-event-item__bet-offer-count'},
              'resultat': {'attrs': ['class', 'text']}}
-
-    a = Parse('''<div class="KambiBC-event-item__event-info"><div class="KambiBC-event-item__score-container">
-    <div class="KambiBC-event-item__match-clock-container"><span class="KambiBC-event-item__start-time--time">20:45</span></div></div>
-    <div class="KambiBC-event-item__details"><div class="KambiBC-event-item__participants-container">
-    <div class="KambiBC-event-participants"><div class="KambiBC-event-participants__name">
-    <!-- react-text: 50 -->Republic of Ireland<!-- /react-text --><div class="KambiBC-event-participants__info"></div></div>
-    <div class="KambiBC-event-participants__name"><!-- react-text: 53 -->Denmark<!-- /react-text -->
-    <div class="KambiBC-event-participants__info"></div></div></div></div><div class="KambiBC-event-item__streaming-path-container">
-    <div class="KambiBC-event-item__live-text-container">Live</div><div class="KambiBC-event-item__path-container">
-    <div class="KambiBC-modularized-event-path"><span class="KambiBC-modularized-event-path__fragmentcontainer">
-    <span class="KambiBC-modularized-event-path__fragment">Football</span></span>
-    <span class="KambiBC-modularized-event-path__fragmentcontainer">
-    <span class="KambiBC-modularized-event-path__fragment">World Cup Qualifying - Europe</span></span></div></div></div>
-    <div class="KambiBC-event-item__each-way-terms-container"><!-- react-empty: 43 --></div></div>
-    <span class="KambiBC-event-item__bet-offer-count">+360</span></div>
-    <button class="KambiBC-event-item__link--event-statistics" data-touch-feedback="true" title="Statistics" type="button"></button>
-    <div class="KambiBC-event-item__bet-offers-container">
-    <div class="KambiBC-list-view KambiBC-bet-offers-list KambiBC-bet-offers-list--col2">
-    <div class="KambiBC-list-view__column KambiBC-bet-offers-list__column">
-    <div class="KambiBC-bet-offer KambiBC-bet-offer--onecrosstwo KambiBC-bet-offer--inline KambiBC-bet-offer--outcomes-3">
-    <div class="KambiBC-bet-offer__outcomes"><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button">
-    <div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper">
-    <span class="KambiBC-mod-outcome__label">Republic of Ireland</span></div><div class="KambiBC-mod-outcome__odds-wrapper">
-    <span class="KambiBC-mod-outcome__odds">3.25</span></div></div></button>
-    <button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button">
-    <div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper">
-    <span class="KambiBC-mod-outcome__label">Draw</span></div><div class="KambiBC-mod-outcome__odds-wrapper">
-    <span class="KambiBC-mod-outcome__odds">2.80</span></div></div>
-    </button><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button">
-    <div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper">
-    <span class="KambiBC-mod-outcome__label">Denmark</span></div>
-    <div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">2.80</span></div></div><
-    /button></div></div></div>
-    <div class="KambiBC-list-view__column KambiBC-bet-offers-list__column">
-    <div class="KambiBC-bet-offer KambiBC-bet-offer--overunder KambiBC-bet-offer--inline KambiBC-bet-offer--outcomes-2">
-    <div class="KambiBC-bet-offer__outcomes">
-    <button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button">
-    <div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper">
-    <span class="KambiBC-mod-outcome__label">Over</span><span class="KambiBC-mod-outcome__line">1.5</span></div>
-    <div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">1.72</span></div></div></button>
-    <button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button">
-    <div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper">
-    <span class="KambiBC-mod-outcome__label">Under</span><span class="KambiBC-mod-outcome__line">1.5</span></div>
-    <div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">2.14</span>
-    </div></div></button></div></div></div></div></div>
-
-
-<div class="KambiBC-event-item__event-info"><div class="KambiBC-event-item__score-container"><div class="KambiBC-event-item__match-clock-container"><span><span class="KambiBC-event-item__start-time--date">17/11</span><span class="KambiBC-event-item__start-time--time">19:00</span></span></div></div><div class="KambiBC-event-item__details"><div class="KambiBC-event-item__participants-container"><div class="KambiBC-event-participants"><div class="KambiBC-event-participants__name"><!-- react-text: 143 -->Lille<!-- /react-text --><div class="KambiBC-event-participants__info"></div></div><div class="KambiBC-event-participants__name"><!-- react-text: 146 -->Saint-Étienne<!-- /react-text --><div class="KambiBC-event-participants__info"></div></div></div></div><div class="KambiBC-event-item__streaming-path-container"><div class="KambiBC-event-item__live-text-container">Live</div><div class="KambiBC-event-item__path-container"><div class="KambiBC-modularized-event-path"><span class="KambiBC-modularized-event-path__fragmentcontainer"><span class="KambiBC-modularized-event-path__fragment">Football</span></span><span class="KambiBC-modularized-event-path__fragmentcontainer"><span class="KambiBC-modularized-event-path__fragment">France</span></span><span class="KambiBC-modularized-event-path__fragmentcontainer"><span class="KambiBC-modularized-event-path__fragment">Ligue 1</span></span></div></div></div><div class="KambiBC-event-item__each-way-terms-container"><!-- react-empty: 92 --></div></div><span class="KambiBC-event-item__bet-offer-count">+118</span></div><button class="KambiBC-event-item__link--event-statistics" data-touch-feedback="true" title="Statistics" type="button"></button><div class="KambiBC-event-item__bet-offers-container"><div class="KambiBC-list-view KambiBC-bet-offers-list KambiBC-bet-offers-list--col2"><div class="KambiBC-list-view__column KambiBC-bet-offers-list__column"><div class="KambiBC-bet-offer KambiBC-bet-offer--onecrosstwo KambiBC-bet-offer--inline KambiBC-bet-offer--outcomes-3"><div class="KambiBC-bet-offer__outcomes"><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button"><div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper"><span class="KambiBC-mod-outcome__label">Lille</span></div><div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">2.25</span></div></div></button><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button"><div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper"><span class="KambiBC-mod-outcome__label">Draw</span></div><div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">3.20</span></div></div></button><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button"><div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper"><span class="KambiBC-mod-outcome__label">Saint-Étienne</span></div><div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">3.35</span></div></div></button></div></div></div><div class="KambiBC-list-view__column KambiBC-bet-offers-list__column"><div class="KambiBC-bet-offer KambiBC-bet-offer--overunder KambiBC-bet-offer--inline KambiBC-bet-offer--outcomes-2"><div class="KambiBC-bet-offer__outcomes"><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button"><div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper"><span class="KambiBC-mod-outcome__label">Over</span><span class="KambiBC-mod-outcome__line">2.5</span></div><div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">2.38</span></div></div></button><button class="KambiBC-mod-outcome" data-touch-feedback="true" role="button" type="button"><div class="KambiBC-mod-outcome__flexwrap"><div class="KambiBC-mod-outcome__label-wrapper"><span class="KambiBC-mod-outcome__label">Under</span><span class="KambiBC-mod-outcome__line">2.5</span></div><div class="KambiBC-mod-outcome__odds-wrapper"><span class="KambiBC-mod-outcome__odds">1.58</span></div></div></button></div></div></div></div></div>''')\
-        .getList([ participants, heure_debut_rencontre, paris, nb_offre_de_paris ])
+    html ='''
+    <html>
+       <body>
+           <div>
+                <span>
+                    <h1>Titre esssai</h1>
+                    <h2>Sous  titre</h2>
+                </span>
+           </div>
+           <div class='balise1'>
+                <span>
+                    <h1>Titre esssai 1</h1>
+                    <h2>Sous  titre 1</h2>
+                </span>
+                <span>
+                    <h1>Titre esssai 2</h1>
+                    <p>
+                       <h3 class="type1">La ferme de pigeons</h3>
+                       <h3 class="type1">Le projet des teubés</h3>
+                    </p>
+                    <h2>Sous  titre 2</h2>
+                </span>
+           </div>
+           <div>
+                   <span>
+                    <h1>Titre esssai 3</h1>
+                     <p>
+                       <h3 class="type1">La ferme de pigeons 2</h3>
+                       <h3 class="type1">Le projet des teubés 3</h3>
+                    </p>
+                    <h2>Sous  titre 3</h2>
+                </span>
+           </div>
+           <div></div>
+       </body>
+    </html>
+    '''
+    a = Parse(html).parse(**{'selection': [{'find_all': {'name': 'div',}},
+                                           {'find_all': {'name': 'p'}},
+                                           {'find_all': {'name': 'h3', 'class':'type1'}},
+                                                       ],
+                                         'results': {'text':'texte','class':'attribut2', },
+                                         'mapping_fields': [],
+                                         }
+                        )
     print(a)
