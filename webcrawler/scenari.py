@@ -129,7 +129,8 @@ class scenari(object):
         #print("Nous sommes dans le callback: " , future.result())
         # log.info(future.result())
         ##Nous suivons les liens en produisant en scenari sans aboutir à un parsage
-        if self.kwargs['links'] and not None in self.kwargs['links']:
+
+        if self.kwargs['links'] and not None in future.result():
             scenari_log.info('Nous traitons les liens {}'.format(self.kwargs['links']))
             self.followLinks(self.kwargs, future.result())
 
