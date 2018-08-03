@@ -5,15 +5,20 @@ data_servitude_haute_loire = 'https://www.data.gouv.fr/fr/search/?q=servitude+ha
 linkss = {
         'parse': [{'selection': [{'find_all': {'name': 'article',
                                                'class_' : 'card',
-                                               # 'text' : re.compile('.*WGS-84.*')
-                                               }}, {'find_all': {'name': 'h4',}},
+                                               # 'string' : re.compile('.*WGS-84.*')
+                                               }},
+                                 {'find_all': {'name': 'h4', 'string' : re.compile('.*WGS-84.*')}},
+                                 {'find_parent': 'article'},
+                                 {'find': 'footer'},
+                                 {'find': {'name': 'a', 'string' : re.compile('Télécharger')}}
+                                 #{'find': 'footer'}
                                      ],
                        'results': {'class': 'classe', 'href': 'href', 'text': 'text'},
                        'mapping_fields': [],
                        'with_parents': []
                        },
                   ],
-        'links': None,
+        'links': [],
         'scenari': False,
         'session': None,
         'inject': {},

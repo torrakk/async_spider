@@ -129,7 +129,7 @@ class scenari(object):
         #print("Nous sommes dans le callback: " , future.result())
         # log.info(future.result())
         ##Nous suivons les liens en produisant en scenari sans aboutir à un parsage
-        if self.kwargs['links'] :
+        if self.kwargs['links'] and not None in self.kwargs['links']:
             scenari_log.info('Nous traitons les liens {}'.format(self.kwargs['links']))
             self.followLinks(self.kwargs, future.result())
 
@@ -226,6 +226,7 @@ class scenari(object):
         try:
             self.session, self.page = await self.connect()
         except (TypeError) as e:
+            #print("Nous sommes dans l'erreur")
             scenari_log.error('Erreur {} \n {}'.format(e,self.kwargs))
 
         # print(Parse(self.page).getList(self.parse))

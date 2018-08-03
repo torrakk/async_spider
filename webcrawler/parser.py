@@ -77,22 +77,29 @@ class Parse():
         continuer la recherche
         :return: resultat de recherche
         '''
-        print(motif)
-        print(motif.items())
+        #print(motif)
+        #print(motif.items())
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
         if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
-            print("NOUS SOMMES DANS UN RESULT SET OU une liste ", type(element))
+            #print("NOUS SOMMES DANS UN RESULT SET OU une liste ", type(element))
             # liste_result =
-            # TODO Lisser la liste de l'objet retour
-            objetRetour = [ self.rechercheBF(motif, result) for result in element]
-            return objetRetour
+            # Nous aplatissons la châine en retour
+            obj = [ self.rechercheBF(motif, result) for result in element]
+            #parse_log.debug('BeautifulSoup !' + type(element) + " element bs :" + element)
+            #print("\nOBJ ", obj)
+            objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
         elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
-            print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !')
-            objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-            print("objet_retour: ",objetRetour, type(objetRetour))
-            return objetRetour
-        print("Nous sommes dans un cas special ", type(element))
-        return
+            #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
+            #parse_log.debug('BeautifulSoup !' + str(type(element))+ " element bs :" + element)
+            if isinstance(valeursDeRecherche, dict):
+                #print("Nous sommes ici")
+                objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
+            if isinstance(valeursDeRecherche, str):
+                #print("Nous sommes là")
+                objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
+        #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
+        return objetRetour
+        #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
     def parse(self, **kwargs):
 
@@ -113,7 +120,7 @@ class Parse():
                                   kwargs.get('with_parents', None)
 
         page_bf = self.soup
-        print("selection ", selection)
+        #print("selection ", selection)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
         for selectionMotif in selection:
@@ -122,13 +129,13 @@ class Parse():
             element = self.result_partiel if self.result_partiel else page_bf
             self.result_partiel = self.rechercheBF(selectionMotif, element)
         result = self.result_partiel
-        for i in result:
-            print(type(i), i, len(i))
-            for g in i:
-                print(type(g), g)
+        # for i in result:
+        #     print(type(i), i, len(i))
+        #     for g in i:
+        #         print(type(g), g)
         if result:
-            #parse_log.debug(str(result))
-            return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip() \
+            parse_log.debug("\n\n RESULT !!" + str(result))
+            return [self.__mapp(resultat, {cle: item.get(cle)if cle != 'text' else item.getText().strip() \
                                                        for cle in resultat.keys()}) for item in result ]
         else:
             return
@@ -147,28 +154,28 @@ class Parse():
 
 
 if __name__=='__main__':
-    heure_debut_rencontre = {'selection':{'type':'span', 'class':'KambiBC-event-item__start-time--time'},
-                     'resultat':{'attrs':['class', 'text']}}
-    sport = {'selection':{'type':'span', 'class':'KambiBC - modularized - event - path__fragment'},
-                     'resultat':{'attrs':['class', 'text']}
-             }
-    competition = {'selection':{'type':'span', 'class':'KambiBC-modularized-event-path__fragment'},
-                     'resultat':{'attrs':['class', 'text']}
-             }
-    participants = {'selection': {'type': 'div', 'class':'KambiBC-event-participants__name'},
-                     'resultat': {'text': '','attrs': ['text']}}
-    paris = {'selection': {'type': 'span', 'class': 'KambiBC-mod-outcome__odds'},
-                   'resultat': {'attrs': ['class', 'text']}}
-    nb_offre_de_paris = {'selection': {'type': 'span', 'class': 'KambiBC-event-item__bet-offer-count'},
-             'resultat': {'attrs': ['class', 'text']}}
+    # heure_debut_rencontre = {'selection':{'type':'span', 'class':'KambiBC-event-item__start-time--time'},
+    #                  'resultat':{'attrs':['class', 'text']}}
+    # sport = {'selection':{'type':'span', 'class':'KambiBC - modularized - event - path__fragment'},
+    #                  'resultat':{'attrs':['class', 'text']}
+    #          }
+    # competition = {'selection':{'type':'span', 'class':'KambiBC-modularized-event-path__fragment'},
+    #                  'resultat':{'attrs':['class', 'text']}
+    #          }
+    # participants = {'selection': {'type': 'div', 'class':'KambiBC-event-participants__name'},
+    #                  'resultat': {'text': '','attrs': ['text']}}
+    # paris = {'selection': {'type': 'span', 'class': 'KambiBC-mod-outcome__odds'},
+    #                'resultat': {'attrs': ['class', 'text']}}
+    # nb_offre_de_paris = {'selection': {'type': 'span', 'class': 'KambiBC-event-item__bet-offer-count'},
+    #          'resultat': {'attrs': ['class', 'text']}}
     html ='''
     <html>
        <body>
-           <div>
-                <span>
+           <div class="test 1">
+                
                     <h1>Titre esssai</h1>
                     <h2>Sous  titre</h2>
-                </span>
+                
            </div>
            <div class='balise1'>
                 <span>
@@ -177,20 +184,14 @@ if __name__=='__main__':
                 </span>
                 <span>
                     <h1>Titre esssai 2</h1>
-                    <p>
-                       <h3 class="type1">La ferme de pigeons</h3>
-                       <h3 class="type1">Le projet des teubés</h3>
-                    </p>
+                    <p><h3 class="type1">La ferme de pigeons</h3><h3 class="type1">Le projet des teubés</h3></p>
                     <h2>Sous  titre 2</h2>
                 </span>
            </div>
-           <div>
-                   <span>
+           <div class="test3">
+                <span>
                     <h1>Titre esssai 3</h1>
-                     <p>
-                       <h3 class="type1">La ferme de pigeons 2</h3>
-                       <h3 class="type1">Le projet des teubés 3</h3>
-                    </p>
+                    <p><h3 class="type1">La ferme de pigeons 2</h3><h3 class="type1">Le projet des teubés 3</h3></p>
                     <h2>Sous  titre 3</h2>
                 </span>
            </div>
@@ -198,11 +199,15 @@ if __name__=='__main__':
        </body>
     </html>
     '''
+    # soup = BeautifulSoup(html, 'html.parser')
+    # print(soup.html.body.div.span.__getattribute__('parent'))
     a = Parse(html).parse(**{'selection': [{'find_all': {'name': 'div',}},
-                                           {'find_all': {'name': 'p'}},
-                                           {'find_all': {'name': 'h3', 'class':'type1'}},
+                                           {'find_all': {'name': 'span'}},
+                                           {'find_all': {'name': 'h2',}},
+                                           {'find_parent': 'div'},
+                                           {'find_all': {'name': 'h3'}},
                                                        ],
-                                         'results': {'text':'texte','class':'attribut2', },
+                                         'results': {'class':'classe', 'name':'name'},
                                          'mapping_fields': [],
                                          }
                         )
