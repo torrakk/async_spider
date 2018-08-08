@@ -53,7 +53,7 @@ class Connect(object):
         self.testUrl(kwargs['url'])
         connect_log.info('url visitée : {}'.format(kwargs['url']))
         try:
-            async with self.session.__getattribute__(self.action)(**kwargs) as response:
+            async with self.session.__getattribute__(self.action)(timeout=TIMEOUT, **kwargs) as response:
                 connect_log.debug(str("Response status : "+str(response.status)+" Headers : " + str(response.headers)))
                 assert response.status == 200
                 self.scenar_obj.url_visited.add(kwargs.get('url'))
@@ -69,7 +69,7 @@ class Connect(object):
                             fichier.write(chunk)
                             connect_log.info("Téléchargement de {}".format(nom_fichier))
                             connect_log.info("Le fichier pèse : {0} {1}".format(os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko"))
-                            return (self.session,  nom_fichier)
+                    return (self.session,  None)
                 return (self.session, await response.text())
         except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, aiohttp.client_exceptions.ClientOSError, socket.gaierror, Exception) as e:
             connect_log.debug('Nous avons un problèmes de connexion au site {}--> {}'.format(kwargs['url'], e))

@@ -25,7 +25,8 @@ class Parse():
         self.soup = BeautifulSoup(self.page, 'html.parser')
 
 
-    def list_parse(self, list_baliz):
+
+    def list_parse(self, list_baliz ):
         '''
         Permet de parser une liste de balise
         
@@ -84,7 +85,7 @@ class Parse():
             #print("NOUS SOMMES DANS UN RESULT SET OU une liste ", type(element))
             # liste_result =
             # Nous aplatissons la châine en retour
-            obj = [ self.rechercheBF(motif, result) for result in element]
+            obj = [ self.rechercheBF(motif, result) for result in element ]
             #parse_log.debug('BeautifulSoup !' + type(element) + " element bs :" + element)
             #print("\nOBJ ", obj)
             objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
@@ -120,6 +121,7 @@ class Parse():
                                   kwargs.get('with_parents', None)
 
         page_bf = self.soup
+        result = []
         #print("selection ", selection)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
@@ -128,19 +130,24 @@ class Parse():
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
             self.result_partiel = self.rechercheBF(selectionMotif, element)
-        result = self.result_partiel
+
+        if kwargs.get('duplicates', None):
+            #TODO tester si cela passe au niveau du duplicates
+            for item in self.result_partiel:
+                if not item in result:
+                    result.append(item)
+        else:
+            result = self.result_partiel
         # for i in result:
         #     print(type(i), i, len(i))
         #     for g in i:
         #         print(type(g), g)
         if result:
-            parse_log.debug("\n\n RESULT !!" + str(result))
+            parse_log.debug("resultat du parseur" + str(result) + " type : "+ str(type(result)))
             return [self.__mapp(resultat, {cle: item.get(cle)if cle != 'text' else item.getText().strip() \
                                                        for cle in resultat.keys()}) for item in result ]
         else:
             return
-
-
 
     def getList(self, list_baliz):
         '''
@@ -201,7 +208,7 @@ if __name__=='__main__':
     '''
     # soup = BeautifulSoup(html, 'html.parser')
     # print(soup.html.body.div.span.__getattribute__('parent'))
-    a = Parse(html).parse(**{'selection': [{'find_all': {'name': 'div',}},
+    a = Parse(html).parse(duplicates=True, **{'selection': [{'find_all': {'name': 'div',}},
                                            {'find_all': {'name': 'span'}},
                                            {'find_all': {'name': 'h2',}},
                                            {'find_parent': 'div'},
@@ -211,4 +218,5 @@ if __name__=='__main__':
                                          'mapping_fields': [],
                                          }
                         )
-    print(a)
+    # for i in a:
+    #     print(i)

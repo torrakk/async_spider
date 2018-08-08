@@ -14,6 +14,7 @@ linkss = {
                                  #{'find': 'footer'}
                                      ],
                        'results': {'class': 'classe', 'href': 'href', 'text': 'text'},
+                       'duplicates': True,
                        'mapping_fields': [],
                        'with_parents': []
                        },

@@ -2,6 +2,7 @@ import asyncio
 import time
 from logging2 import Logger
 import re
+from io import IOBase
 
 from webcrawler.parser import Parse
 from webcrawler.connecteur import Connect
@@ -137,7 +138,7 @@ class scenari(object):
         if self.scenari and type(self.scenari) is not bool:
             scenari_log.info('Nous traitons un scenario {}'.format(self.scenari))
             self.kwargs['scenari'].update({'session': self.session})
-            scenari_log.debug('Nous sommes dans le callback : ' + str(future.result()))
+            #scenari_log.debug('Nous sommes dans le callback : ' + str(future.result()))
             scenar = scenari(loop=self.loop, **self.kwargs['scenari'])
             asyncio.gather(scenar.run())
         # print("url visitée 1 fois: ", len(self.url_visited),"\n", self.url_visited, "\n")
@@ -188,15 +189,17 @@ class scenari(object):
 
     def followLinks(self, kwargs, result):
 
-        scenari_log.debug("resultats dans le follow links : "+str(result))
+        scenari_log.debug("resultats dans le follow links : " + str(result))
         assert isinstance(result, list)
         ## Produit un scenari par resultat
         for links in result:
             # try:
             assert isinstance(links, list)
             for link in links:
-                if self.modeleUpdateProducer(link, kwargs):
-                    validite, modele = self.modeleUpdateProducer(link, kwargs)
+                print("link : ",link)
+                model = self.modeleUpdateProducer(link, kwargs)
+                if model:
+                    validite, modele = model
                     scenar = scenari(loop=self.loop, **modele)
                     asyncio.gather(scenar.run())
                 else:
@@ -229,10 +232,17 @@ class scenari(object):
         except (TypeError) as e:
             #print("Nous sommes dans l'erreur")
             scenari_log.error('Erreur {} \n {}'.format(e,self.kwargs))
-
-        # print(Parse(self.page).getList(self.parse))
-        return self.future.set_result(Parse(self.page).list_parse(self.parse)) if self.parse \
-        else self.future.set_result(self.page)
+        try:
+            if self.page:
+            # print(Parse(self.page).getList(self.parse))
+                return self.future.set_result(Parse(self.page).list_parse( self.parse)) if self.parse \
+                else self.future.set_result(self.page)
+            else :
+                print("Nous sommes dans le fichiers IOBase")
+        except(TypeError) as e:
+            scenari_log.error("Le fichier : {} a été téléchargé type {}".format(self.page, type(self.page)))
+            #raise
+        return
 
     def __repr__(self):
         return(str(self.__dict__))
