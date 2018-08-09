@@ -233,16 +233,20 @@ class scenari(object):
             #print("Nous sommes dans l'erreur")
             scenari_log.error('Erreur {} \n {}'.format(e,self.kwargs))
         try:
-            if self.page:
+            # if self.page:
             # print(Parse(self.page).getList(self.parse))
-                return self.future.set_result(Parse(self.page).list_parse( self.parse)) if self.parse \
-                else self.future.set_result(self.page)
-            else :
-                print("Nous sommes dans le fichiers IOBase")
+            return self.future.set_result(Parse(self.page).list_parse( self.parse)) if self.parse \
+            else self.future.set_result(self.page)
+            # else :
+            #     print("Nous sommes dans le fichiers IOBase")
         except(TypeError) as e:
-            scenari_log.error("Le fichier : {} a été téléchargé type {}".format(self.page, type(self.page)))
-            #raise
-        return
+            #scenari_log.error("Le fichier : {} a été téléchargé type {}".format(self.page, type(self.page)))
+            ##En cas de téléchargement nous n'allons pas dans le callback
+            ##nous fermons donc les sessions ouvertes en décrementant le Counter.tasks
+            Counter.tasks -= 1
+            print(Counter.tasks)
+            self.__decoLoop()
+            return
 
     def __repr__(self):
         return(str(self.__dict__))

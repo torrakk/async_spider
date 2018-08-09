@@ -19,7 +19,8 @@ class Parse():
         voir les méthodes : parse et list_parse
         :param page: 
         '''
-        assert type(page)==str, "La page doit être de type string"
+
+
 
         self.page = page
         self.soup = BeautifulSoup(self.page, 'html.parser')
@@ -115,6 +116,12 @@ class Parse():
         :return:
     
         '''
+
+
+        try:
+            assert type(self.page)==str, "La page doit être de type string"
+        except AssertionError:
+            return
 
 
         selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
