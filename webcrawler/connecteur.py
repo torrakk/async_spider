@@ -4,6 +4,7 @@ import aiohttp
 import asyncio
 from contextlib import closing
 import socket
+from abc import *
 import random
 # from logging2 import Logger
 

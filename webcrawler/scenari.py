@@ -161,11 +161,13 @@ class scenari(object):
         :return: True Or False(si nous pouvons visiter l'url), modele (et le modele mis en forme)
         '''
         href = link.get('href', None)
+        #print(href)
         #print('HREF :', href, " , " ,link)
         #scenari_log.debug("Nous tentons de vérifier l'existence d'un lien {} {}".format(link, kwargs))
         url = validateUrl(href, joinUrl(self.url, href)).__next__()
+        #print(' \n\n URL:{}'.format(url))
         #print('url ', url)
-
+        return url
 
         ##Nous vérifions l'url, si elle existe, si elle est bien formée puis nous produisons un scenari
 

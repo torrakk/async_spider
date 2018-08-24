@@ -9,6 +9,7 @@ from itertools import chain
 from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import parse_log
 from webcrawler.mapper import mapp
+from webcrawler.utils import xpath
 
 class Parse():
 
@@ -68,6 +69,7 @@ class Parse():
         for result in resultSet:
             yield result
 
+    @xpath
     def rechercheBF(self, motif, element):
         '''
         Recherche BF est un generateur permettant de lancer 
@@ -80,15 +82,12 @@ class Parse():
         :return: resultat de recherche
         '''
         #print(motif)
-        #print(motif.items())
+        # print(motif.items())
+        print(list(motif.items())[0])
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
         if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
-            #print("NOUS SOMMES DANS UN RESULT SET OU une liste ", type(element))
-            # liste_result =
-            # Nous aplatissons la châine en retour
             obj = [ self.rechercheBF(motif, result) for result in element ]
             #parse_log.debug('BeautifulSoup !' + type(element) + " element bs :" + element)
-            #print("\nOBJ ", obj)
             objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
         elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
             #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
@@ -137,7 +136,7 @@ class Parse():
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
             self.result_partiel = self.rechercheBF(selectionMotif, element)
-
+        #print(self.result_partiel)
         if kwargs.get('duplicates', None):
             #TODO tester si cela passe au niveau du duplicates
             for item in self.result_partiel:
@@ -147,11 +146,11 @@ class Parse():
             result = self.result_partiel
         # for i in result:
         #     print(type(i), i, len(i))
-        #     for g in i:
-        #         print(type(g), g)
+            # for g in i:
+            #     print(type(g), g)
         if result:
-            parse_log.debug("resultat du parseur" + str(result) + " type : "+ str(type(result)))
-            return [self.__mapp(resultat, {cle: item.get(cle)if cle != 'text' else item.getText().strip() \
+            #parse_log.info("resultat du parseur" + str(result) +str([i.xpath for i in result])+ " type : "+ str(type(result)))
+            return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
                                                        for cle in resultat.keys()}) for item in result ]
         else:
             return
@@ -221,9 +220,10 @@ if __name__=='__main__':
                                            {'find_parent': 'div'},
                                            {'find_all': {'name': 'h3'}},
                                                        ],
-                                         'results': {'class':'classe', 'name':'name'},
+                                         'results': {'class':'classe', 'name':'name', 'xpath':'xpath', 'text': 'texte'},
                                          'mapping_fields': [],
                                          }
                         )
+    print(a)
     # for i in a:
     #     print(i)
