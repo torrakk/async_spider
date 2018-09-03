@@ -5,6 +5,7 @@ import asyncio
 from contextlib import closing
 import socket
 from abc import *
+from selenium import webdriver
 import random
 # from logging2 import Logger
 
@@ -43,6 +44,19 @@ class Connect(object):
             print(url)
             #print('Votre url est malformée')
             raise testUrlError('Votre url est malformée')
+
+    def _requestJS(self, **kwargs):
+        self.testUrl(kwargs['url'])
+        connect_log.info('url visitée : {}'.format(kwargs['url']))
+        try:
+            driver = webdriver.Firefox()
+            #Attente implicite de 1 a 3 secondes
+            driver.implicity_wait(random.randint(1, 3)),
+            self.scenar_obj.url_visited.add(kwargs.get('url'))
+            return driver.__getattribute__(self.action)(**kwargs)
+        except(Exception) as e:
+            print("Nous n'arrivons pas à afficher la page\nerreur:{}".format(e))
+
 
     async def _request(self, **kwargs):
         '''

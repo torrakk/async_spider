@@ -81,9 +81,7 @@ class Parse():
         continuer la recherche
         :return: resultat de recherche
         '''
-        #print(motif)
-        # print(motif.items())
-        #print(list(motif.items())[0])
+
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
         #print(typeRecherche, valeursDeRecherche)
         try:
@@ -144,6 +142,8 @@ class Parse():
             element = self.result_partiel if self.result_partiel else page_bf
             self.result_partiel = self.rechercheBF(selectionMotif, element)
         #print(self.result_partiel)
+
+        #Permet de renvoyer des résultats non dupliqués si des balises similaires ressortent
         if kwargs.get('duplicates', None):
             #TODO tester si cela passe au niveau du duplicates
             for item in self.result_partiel:
@@ -156,7 +156,7 @@ class Parse():
             # for g in i:
             #     print(type(g), g)
         if result:
-            parse_log.debug("resultat du parseur" + str(result) +str([i.xpath for i in result])+ " type : "+ str(type(result)))
+            parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
             return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
                                                        for cle in resultat.keys()}) for item in result ]

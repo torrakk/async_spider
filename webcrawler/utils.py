@@ -48,7 +48,9 @@ def xpath(func):
                     )
                 child = parent
             components.reverse()
-            setattr(element, 'xpath', '/%s' % '/'.join(components))
+            attrs = getattr(element, 'attrs', {})
+            attrs.update({'xpath': '/%s' % '/'.join(components)})
+            # print("Nous avons ajouté le xpath {}".format(components))
         return element_liste
     return xpath_soup
 
