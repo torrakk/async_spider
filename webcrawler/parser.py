@@ -83,23 +83,30 @@ class Parse():
         '''
         #print(motif)
         # print(motif.items())
-        print(list(motif.items())[0])
+        #print(list(motif.items())[0])
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
-            obj = [ self.rechercheBF(motif, result) for result in element ]
-            #parse_log.debug('BeautifulSoup !' + type(element) + " element bs :" + element)
-            objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
-        elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
-            #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
-            #parse_log.debug('BeautifulSoup !' + str(type(element))+ " element bs :" + element)
-            if isinstance(valeursDeRecherche, dict):
-                #print("Nous sommes ici")
-                objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-            if isinstance(valeursDeRecherche, str):
-                #print("Nous sommes là")
-                objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-        #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
-        return objetRetour
+        #print(typeRecherche, valeursDeRecherche)
+        try:
+            if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
+                obj = [ self.rechercheBF(motif, result) for result in element ]
+                #parse_log.debug('BeautifulSoup !' + type(element) + " element bs :" + element)
+                objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
+            elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
+                #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
+                #parse_log.debug('BeautifulSoup !' + str(type(element))+ " element bs :" + str(element))
+                #print("ok")
+                if isinstance(valeursDeRecherche, dict):
+                    #print("Nous sommes ici")
+                    objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
+                    #print(objetRetour)
+                if isinstance(valeursDeRecherche, str):
+                    #print("Nous sommes là")
+                    objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
+            #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
+            return objetRetour
+        except(Exception) as e:
+            print(e)
+            raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
     def parse(self, **kwargs):
@@ -149,7 +156,8 @@ class Parse():
             # for g in i:
             #     print(type(g), g)
         if result:
-            #parse_log.info("resultat du parseur" + str(result) +str([i.xpath for i in result])+ " type : "+ str(type(result)))
+            parse_log.debug("resultat du parseur" + str(result) +str([i.xpath for i in result])+ " type : "+ str(type(result)))
+            #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
             return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
                                                        for cle in resultat.keys()}) for item in result ]
         else:

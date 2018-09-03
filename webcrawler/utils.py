@@ -48,7 +48,7 @@ def xpath(func):
                     )
                 child = parent
             components.reverse()
-            element.xpath='/%s' % '/'.join(components)
+            setattr(element, 'xpath', '/%s' % '/'.join(components))
         return element_liste
     return xpath_soup
 

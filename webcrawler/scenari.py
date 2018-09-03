@@ -167,7 +167,6 @@ class scenari(object):
         url = validateUrl(href, joinUrl(self.url, href)).__next__()
         #print(' \n\n URL:{}'.format(url))
         #print('url ', url)
-        return url
 
         ##Nous vérifions l'url, si elle existe, si elle est bien formée puis nous produisons un scenari
 
@@ -198,7 +197,7 @@ class scenari(object):
             # try:
             assert isinstance(links, list)
             for link in links:
-                print("link : ",link)
+                #print("link : ",link)
                 model = self.modeleUpdateProducer(link, kwargs)
                 if model:
                     validite, modele = model

@@ -54,15 +54,18 @@ class Connect(object):
         self.testUrl(kwargs['url'])
         connect_log.info('url visitée : {}'.format(kwargs['url']))
         try:
-            async with self.session.__getattribute__(self.action)(timeout=TIMEOUT, **kwargs) as response:
-                connect_log.debug(str("Response status : "+str(response.status)+" Headers : " + str(response.headers)))
+            print(self.session.__dict__)
+            async with self.session.__getattribute__(self.action)(**kwargs) as response: #timeout=TIMEOUT,
+                connect_log.debug(str("url : "+ kwargs.get('url') + "\nResponse status : "+str(response.status)+"\nHeaders : " + str(response.headers)))
                 assert response.status == 200
                 self.scenar_obj.url_visited.add(kwargs.get('url'))
                 if response.headers.get('Content-Type') == 'application/zip':
-                    # response.headers.get('Content-Disposition')
+                    #print("Nous sommmes lalalalalalalala !!!!!!!!")
+                    connect_log.debug(response.headers.get('Content-Disposition'))
                     nom_fichier = (self.nomfichier.search(( response.headers.get('Content-Disposition'))).group('nomfichier'))
                     with open(os.path.join(self.download_path, nom_fichier), 'wb') as fichier:
                         while True:
+                            #print("Nous sommmes icic !!!!!!!!")
                             chunk = await response.content.read()
                             #print('Téléchargement de ', nom_fichier, ' ', len(chunk),' kbits')
                             if not chunk:
@@ -72,13 +75,15 @@ class Connect(object):
                             connect_log.info("Le fichier pèse : {0} {1}".format(os.path.getsize(os.path.join(self.download_path, nom_fichier))/1024, " ko"))
                     return (self.session,  None)
                 return (self.session, await response.text())
-        except (aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, aiohttp.client_exceptions.ClientOSError, socket.gaierror, Exception) as e:
-            connect_log.debug('Nous avons un problèmes de connexion au site {}--> {}'.format(kwargs['url'], e))
+        except (aiohttp.client_exceptions.ClientError, aiohttp.client_exceptions.ClientResponseError, aiohttp.client_exceptions.ClientConnectorError, aiohttp.client_exceptions.ClientOSError, socket.gaierror) as e:
+            connect_log.debug('Nous avons un problèmes de connexion au site {}--> {}'.format(kwargs['url'], e,))
             #print('Nous avons un problèmes de connexion au site --> {}'.format(e))
 
     async def request(self):
         if not self.session:
             self.session = aiohttp.ClientSession(raise_for_status=True)
+            #self.session._default_headers.update({"User-Agent" : 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'})
+            print(self.session._default_headers)
             self.session_pool[self.scenar.get('url')]=self.session
             return await self._request(**self.scenar)
         else:

@@ -10,7 +10,7 @@ linkss = {
                                  {'find_all': {'name': 'h4', 'string' : re.compile('.*WGS-84.*')}},
                                  {'find_parent': 'article'},
                                  {'find': 'footer'},
-                                 #{'find': {'name': 'a', 'string' : re.compile('Télécharger')}}
+                                 {'find': {'name': 'a', 'string' : re.compile('Télécharger')}}
                                  #{'find': 'footer'}
                                      ],
                        'results': {'class': 'classe', 'href': 'href', 'text': 'text', 'xpath':'xpath'},
@@ -34,6 +34,6 @@ dicto = [{'action': 'get',
                                          'mapping_fields': [],
                                          },
             ],
-   'links': [],#linkss,
+   'links': linkss,
    'scenari': [],
    'session':None,}]

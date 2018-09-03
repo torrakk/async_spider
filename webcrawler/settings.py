@@ -19,4 +19,4 @@ MDP='******'
 CODES={'username':LOGIN, 'password':MDP, }
 
 ## Timeout de session
-TIMEOUT = 30
+TIMEOUT = 3000
