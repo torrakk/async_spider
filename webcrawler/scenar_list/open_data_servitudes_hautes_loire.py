@@ -22,6 +22,8 @@ linkss = {
         'session': None,
         'inject': {},
         'follow':True
+
+
     }
 
 
@@ -36,4 +38,6 @@ dicto = [{'action': 'get',
             ],
    'links': linkss,
    'scenari': [],
-   'session':None,}]
+   'session':None,
+   'javascript':True
+          } ]

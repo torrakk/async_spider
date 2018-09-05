@@ -29,7 +29,7 @@ class Connect(object):
         #self.session = session
         self.scenar = scenar
         self.scenar_obj = scenar_obj
-        self.action, self.session = (self.scenar.pop(keys) for keys in ('action', 'session'))
+        self.action, self.session, self.javascript, self.url = (self.scenar.pop(keys) for keys in ('action', 'session', 'javascript', 'url'))
         # si une session existe quelque part nous la prennons
 
         if not self.session:
@@ -46,14 +46,19 @@ class Connect(object):
             raise testUrlError('Votre url est malformée')
 
     def _requestJS(self, **kwargs):
-        self.testUrl(kwargs['url'])
-        connect_log.info('url visitée : {}'.format(kwargs['url']))
+        """
+        Permet de faire des requêtes en js
+        :param kwargs: url, data
+        :return: 
+        """
+        self.testUrl()
+        connect_log.info('url visitée : {}'.format(self.url))
         try:
-            driver = webdriver.Firefox()
+
             #Attente implicite de 1 a 3 secondes
-            driver.implicity_wait(random.randint(1, 3)),
+            self.session.implicity_wait(random.randint(1, 3)),
             self.scenar_obj.url_visited.add(kwargs.get('url'))
-            return driver.__getattribute__(self.action)(**kwargs)
+            return self.session.__getattribute__(self.action)(**kwargs)
         except(Exception) as e:
             print("Nous n'arrivons pas à afficher la page\nerreur:{}".format(e))
 
@@ -95,13 +100,20 @@ class Connect(object):
 
     async def request(self):
         if not self.session:
-            self.session = aiohttp.ClientSession(raise_for_status=True)
+            self.session_pool[self.scenar.get('url')] = self.session
+            if self.javascript:
+                self.session = webdriver.Firefox()
+                return self._requestJS(**self.scenar)
+            else:
+                self.session = aiohttp.ClientSession(raise_for_status=True)
+                return await self._request(**self.scenar)
             #self.session._default_headers.update({"User-Agent" : 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'})
-            print(self.session._default_headers)
-            self.session_pool[self.scenar.get('url')]=self.session
-            return await self._request(**self.scenar)
+            #print(self.session._default_headers)
+
         else:
             # print('nous sommes là !!')
+            if self.javascript:
+                return self._requestJS(**self.scenar)
             return await self._request(**self.scenar)
 
 
@@ -112,7 +124,7 @@ class Connect(object):
 if __name__ == '__main__':
 
     with closing(asyncio.get_event_loop()) as loop:
-        con = Connect(**{'action':'get','url':'http://www.loire-semene.fr/', 'data':CODES , 'session': None })
+        con = Connect(**{'action':'get','url':'http://www.loire-semene.fr/', 'data':CODES , 'session': None, 'javascript':False })
         requete = loop.run_until_complete(con.request())
         print(requete)
         requete[0].close()

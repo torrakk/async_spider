@@ -50,6 +50,7 @@ class scenari(object):
                       'links':None,
                       'scenari':None,
                       'session':None,
+                      'javascript':None
                     }
     ## variable de classe permettant de stocker touts les url visitées
     url_visited = set()
@@ -77,7 +78,7 @@ class scenari(object):
         self.future = asyncio.Future()
         self.kwargs = kwargs
         self.page = "Page vide"
-        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session']
+        actions = ['loop', 'action', 'url', 'data', 'parse', 'links', 'scenari', 'session', 'javascript']
         Counter.tasks += 1
         # print(Counter.tasks)
         # print(self.count)
@@ -114,7 +115,7 @@ class scenari(object):
         :return: 
         '''
         scenari_log.info('future connexion : ' + str(self.kwargs['url']) )
-        co = Connect(self, **{ key: value for key, value in self.kwargs.items() if key in ('action', 'url', 'data', 'session')})
+        co = Connect(self, **{ key: value for key, value in self.kwargs.items() if key in ('action', 'url', 'data', 'session', 'javascript')})
         return await co.request()
 
     def callback_scenari(self, future):

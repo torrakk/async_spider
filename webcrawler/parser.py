@@ -137,11 +137,12 @@ class Parse():
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
         for selectionMotif in selection:
+
             ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
             self.result_partiel = self.rechercheBF(selectionMotif, element)
-        #print(self.result_partiel)
+
 
         #Permet de renvoyer des résultats non dupliqués si des balises similaires ressortent
         if kwargs.get('duplicates', None):
@@ -156,7 +157,7 @@ class Parse():
             # for g in i:
             #     print(type(g), g)
         if result:
-            parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
+            #parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
             return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
                                                        for cle in resultat.keys()}) for item in result ]
