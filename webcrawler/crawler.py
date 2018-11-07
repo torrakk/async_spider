@@ -5,8 +5,8 @@ import time
 
 from webcrawler.scenari import scenari
 #from webcrawler.scenar_list.guichet_adresse import dicto
-#from webcrawler.scenar_list.betclick import dicto
-from webcrawler.scenar_list.open_data_servitudes_hautes_loire import dicto
+from webcrawler.scenar_list.betclick import dicto
+#from webcrawler.scenar_list.open_data_servitudes_hautes_loire import dicto
 
 class crawlTime():
     def time(self):

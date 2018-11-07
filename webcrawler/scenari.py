@@ -3,7 +3,7 @@ import time
 from logging2 import Logger
 import re
 from io import IOBase
-
+from selenium import webdriver
 from webcrawler.parser import Parse
 from webcrawler.connecteur import Connect
 from webcrawler.utils import validateUrl, joinUrl
@@ -82,10 +82,10 @@ class scenari(object):
         Counter.tasks += 1
         # print(Counter.tasks)
         # print(self.count)
-        assert list(self.kwargs.keys()) == actions, \
-            "Votre scenari est malformé, " \
+        if not list(self.kwargs.keys()) == actions:
+            raise Exception("Votre scenari est malformé, " \
             "il manque des informations " \
-            "{} doit être {}".format(list(self.kwargs.keys()), actions)
+            "{} doit être {}".format(list(self.kwargs.keys()), actions))
 
         for attr, value in kwargs.items():
             if attr in actions:
@@ -149,6 +149,7 @@ class scenari(object):
         if Counter.tasks == 0:
             scenari_log.info('Nous fermons la loop')
             # Nous fermons toutes les sessions ouvertes
+            #print(Connect.session_pool.items())
             for url, session in Connect.session_pool.items():
                 #print('nous détruisons la session')
                 session.close()
@@ -182,7 +183,9 @@ class scenari(object):
                 'parse': kwargs.get('links', [])['parse'],
                 'links': kwargs.get('links', []),
                 'scenari': True,
-                'session': None})
+                'session': None,
+                'javascript': kwargs.get('javascript', False)
+            })
             scenari_log.info("Nous allons visiter l'url via follow, {}".format(modele['url']))
             return True, modele
         else:

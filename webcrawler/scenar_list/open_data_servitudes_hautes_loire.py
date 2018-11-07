@@ -3,28 +3,26 @@ data_servitude_haute_loire = 'https://www.data.gouv.fr/fr/search/?q=servitude+ha
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 #'text': re.compile(u'export SHP/WGS-84')
 linkss = {
-        'parse': [{'selection': [{'find_all': {'name': 'article',
-                                               'class_' : 'card',
-                                               # 'string' : re.compile('.*WGS-84.*')
-                                               }},
-                                 {'find_all': {'name': 'h4', 'string' : re.compile('.*WGS-84.*')}},
-                                 {'find_parent': 'article'},
-                                 {'find': 'footer'},
-                                 {'find': {'name': 'a', 'string' : re.compile('Télécharger')}}
-                                 #{'find': 'footer'}
-                                     ],
-                       'results': {'class': 'classe', 'href': 'href', 'text': 'text', 'xpath':'xpath'},
-                       'duplicates': True,
-                       },
-                  ],
-        'links': [],
-        'scenari': False,
-        'session': None,
-        'inject': {},
-        'follow':True
-
-
-    }
+            'parse': [{'selection': [{'find_all': {'name': 'a',
+                                                   'string' : 'Téléchargement direct des données',
+                                                   # 'string' : re.compile('.*WGS-84.*')
+                                                   }},
+                                     # {'find_all': {'name': 'h4', 'string' : re.compile('.*WGS-84.*')}},
+                                     # {'find_parent': 'article'},
+                                     # {'find': 'footer'},
+                                     # {'find': {'name': 'a', 'string' : re.compile('Télécharger')}}
+                                     #{'find': 'footer'}
+                                         ],
+                           'results': {'class': 'classe', 'href': 'href', 'text': 'text', 'xpath':'xpath'},
+                           'duplicates': True,
+                           },
+                      ],
+            'links': [],
+            'scenari': False,
+            'session': None,
+            'inject': {},
+            'follow':True
+         }
 
 
 dicto = [{'action': 'get',
@@ -39,5 +37,5 @@ dicto = [{'action': 'get',
    'links': linkss,
    'scenari': [],
    'session':None,
-   'javascript':True
+   'javascript':False
           } ]

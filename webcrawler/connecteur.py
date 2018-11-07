@@ -6,8 +6,12 @@ from contextlib import closing
 import socket
 from abc import *
 from selenium import webdriver
+
+import time
+
 import random
 # from logging2 import Logger
+
 
 
 from webcrawler.settings import *
@@ -15,24 +19,27 @@ from webcrawler.exception import *
 from webcrawler.utils import validateUrl
 from webcrawler.log import connect_log
 
+class scenar_obj_(object):
+    url_visited = set()
+
 class Connect(object):
     # Variable permettant de partager les sessions en fonction des urls visitées et les fermer proprement /
     # une fois que ces dernières ont été visitées
     session_pool = {}
 
-    def __init__(self, scenar_obj,**scenar):
+    def __init__(self, scenar_obj = None, **scenar):
         '''
         L'objet connect permet de se connecter au guichet adresse et d'interrragir avec ce dernier
-        :param adresse: adresse à laquelle se connecter (chaine de caractère)
-        :param credentials: login et mdp contenues dans un dictionnaire
+        :param scenar_obj
+        :param scenar : Kwargs du scenar avec 'action', 'session', 'javascript', 'url'
         '''
         #self.session = session
         self.scenar = scenar
         self.scenar_obj = scenar_obj
         self.action, self.session, self.javascript, self.url = (self.scenar.pop(keys) for keys in ('action', 'session', 'javascript', 'url'))
         # si une session existe quelque part nous la prennons
-
-        if not self.session:
+        connect_log.info('kwargs : {}'.format(self.scenar))
+        if not self.session and self.scenar.get('url', None):
             self.session = self.session_pool[self.scenar['url']] if self.scenar['url'] in self.session_pool.keys() \
                 else self.scenar.pop('session', None) or None
 
@@ -51,14 +58,17 @@ class Connect(object):
         :param kwargs: url, data
         :return: 
         """
-        self.testUrl()
+        self.testUrl(self.url)
         connect_log.info('url visitée : {}'.format(self.url))
         try:
 
             #Attente implicite de 1 a 3 secondes
-            self.session.implicity_wait(random.randint(1, 3)),
-            self.scenar_obj.url_visited.add(kwargs.get('url'))
-            return self.session.__getattribute__(self.action)(**kwargs)
+            self.session.maximize_window()
+            #self.session.implicity_wait(random.randint(1, 3)),
+            self.session.__getattribute__(self.action)(self.url)
+            #element = WebDriverWait(self.session, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "playbutton")))
+            self.scenar_obj.url_visited.add(self.url) if self.scenar_obj else None
+            return self.session, self.session.page_source
         except(Exception) as e:
             print("Nous n'arrivons pas à afficher la page\nerreur:{}".format(e))
 
@@ -70,14 +80,14 @@ class Connect(object):
         :return: 
         '''
 
-        self.testUrl(kwargs['url'])
-        connect_log.info('url visitée : {}'.format(kwargs['url']))
+        self.testUrl(self.url)
+        connect_log.info('url visitée : {}'.format(self.url))
         try:
             print(self.session.__dict__)
-            async with self.session.__getattribute__(self.action)(**kwargs) as response: #timeout=TIMEOUT,
-                connect_log.debug(str("url : "+ kwargs.get('url') + "\nResponse status : "+str(response.status)+"\nHeaders : " + str(response.headers)))
+            async with self.session.__getattribute__(self.action)(self.url, **kwargs) as response: #timeout=TIMEOUT,
+                connect_log.debug(str("url : "+ self.url + "\nResponse status : "+str(response.status)+"\nHeaders : " + str(response.headers)))
                 assert response.status == 200
-                self.scenar_obj.url_visited.add(kwargs.get('url'))
+                self.scenar_obj.url_visited.add(self.url)
                 if response.headers.get('Content-Type') == 'application/zip':
                     #print("Nous sommmes lalalalalalalala !!!!!!!!")
                     connect_log.debug(response.headers.get('Content-Disposition'))
@@ -100,12 +110,13 @@ class Connect(object):
 
     async def request(self):
         if not self.session:
-            self.session_pool[self.scenar.get('url')] = self.session
             if self.javascript:
                 self.session = webdriver.Firefox()
+                self.session_pool[self.url] = self.session
                 return self._requestJS(**self.scenar)
             else:
                 self.session = aiohttp.ClientSession(raise_for_status=True)
+                self.session_pool[self.url] = self.session
                 return await self._request(**self.scenar)
             #self.session._default_headers.update({"User-Agent" : 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'})
             #print(self.session._default_headers)
@@ -124,7 +135,7 @@ class Connect(object):
 if __name__ == '__main__':
 
     with closing(asyncio.get_event_loop()) as loop:
-        con = Connect(**{'action':'get','url':'http://www.loire-semene.fr/', 'data':CODES , 'session': None, 'javascript':False })
+        con = Connect(scenar_obj_(), **{'action':'get','url':'http://www.loire-semene.fr/', 'session': None, 'javascript':True})
         requete = loop.run_until_complete(con.request())
         print(requete)
         requete[0].close()

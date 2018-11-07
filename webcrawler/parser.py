@@ -83,7 +83,7 @@ class Parse():
         '''
 
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        #print(typeRecherche, valeursDeRecherche)
+        print("Nous sommes dans la fonction de recherche ",typeRecherche, valeursDeRecherche)
         try:
             if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
                 obj = [ self.rechercheBF(motif, result) for result in element ]
@@ -100,7 +100,7 @@ class Parse():
                 if isinstance(valeursDeRecherche, str):
                     #print("Nous sommes là")
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-            #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
+            print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
             return objetRetour
         except(Exception) as e:
             print(e)
@@ -133,11 +133,11 @@ class Parse():
 
         page_bf = self.soup
         result = []
-        #print("selection ", selection)
+        parse_log.debug("selection :\n" + str(selection))
+        #parse_log.debug("page affichée :\n" + self.page)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
         for selectionMotif in selection:
-
             ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
@@ -157,11 +157,12 @@ class Parse():
             # for g in i:
             #     print(type(g), g)
         if result:
-            #parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
+            parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
             return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
                                                        for cle in resultat.keys()}) for item in result ]
         else:
+            parse_log.debug("Le parseur ne trouve pas de résultat")
             return
 
     def getList(self, list_baliz):
