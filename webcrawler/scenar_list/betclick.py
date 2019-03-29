@@ -31,7 +31,7 @@ dicto = [
          {'action': 'get',
           'url': bet_click_url,
           'data': '',
-          'parse':[{'selection': [{'find_all': {'name': 'div', 'class':'event'}}],
+          'parse':[{'selection': [{'find_all': {'name': 'body'}}],
                     'results': {'text':'contenu'},
                     'mapping_fields': [],
                    }
