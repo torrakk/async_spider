@@ -6,6 +6,7 @@ from contextlib import closing
 import socket
 from abc import *
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 import time
 
@@ -111,7 +112,9 @@ class Connect(object):
     async def request(self):
         if not self.session:
             if self.javascript:
-                self.session = webdriver.Firefox()
+                caps = DesiredCapabilities.FIREFOX.copy()
+                caps['marionette'] = False
+                self.session = webdriver.Firefox(capabilities=caps)
                 self.session_pool[self.url] = self.session
                 return self._requestJS(**self.scenar)
             else:
