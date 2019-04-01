@@ -111,7 +111,7 @@ class Connect(object):
     async def request(self):
         if not self.session:
             if self.javascript:
-                self.session = webdriver.Chrome()
+                self.session = webdriver.Firefox()
                 self.session_pool[self.url] = self.session
                 return self._requestJS(**self.scenar)
             else:
