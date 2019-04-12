@@ -16,9 +16,9 @@ class crawlTime():
 
 class Crawler():
     heure_debut = time.time()
-    def __init__(self, scenario, loop):
+    def __init__(self, scenario):
 
-        self.loop = loop
+        self.loop = asyncio.get_event_loop()
         self.scenario = scenario
 
     def do_scenari(self):
@@ -35,7 +35,7 @@ class Crawler():
 
 
 if __name__=="__main__":
-    loop = asyncio.get_event_loop()
+
 
 
 
@@ -48,5 +48,5 @@ if __name__=="__main__":
              'follow': False
             }
 
-    robot = Crawler(scenario=dicto, loop=loop)
+    robot = Crawler(scenario=dicto)
     robot.do_scenari()

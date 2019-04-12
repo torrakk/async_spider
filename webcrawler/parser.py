@@ -83,7 +83,7 @@ class Parse():
         '''
 
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        print("Nous sommes dans la fonction de recherche ",typeRecherche, valeursDeRecherche)
+        parse_log.info("Nous sommes dans la fonction de recherche type recherche:{0} valeursDeRecherche:{1} ".format(typeRecherche, valeursDeRecherche))
         try:
             if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
                 obj = [ self.rechercheBF(motif, result) for result in element ]
@@ -100,7 +100,7 @@ class Parse():
                 if isinstance(valeursDeRecherche, str):
                     #print("Nous sommes là")
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-            print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
+            #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
             return objetRetour
         except(Exception) as e:
             print(e)
@@ -156,6 +156,8 @@ class Parse():
         #     print(type(i), i, len(i))
             # for g in i:
             #     print(type(g), g)
+        ## TODO : tester avec betclick pour que l'on retourne toutes les valeurs des matchs et developper le mapping fields pour que nous puissions injecter directement avec django
+        ##
         if result:
             parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
