@@ -1,5 +1,5 @@
 import re
-bet_click_url = 'https://www.betclic.fr/'
+bet_click_url = 'https://www.betclic.fr/calendrier-0'
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 
 linkss = {
