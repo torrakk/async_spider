@@ -1,5 +1,5 @@
 import re
-bet_click_url = 'https://www.betclic.fr/calendrier/football-s1i1'
+bet_click_url = 'https://www.betclic.fr/'
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 
 linkss = {
@@ -31,7 +31,7 @@ dicto = [
          {'action': 'get',
           'url': bet_click_url,
           'data': '',
-          'parse':[{'selection': [{'find_all': {'name': 'body'}}],
+          'parse':[{'selection': [{'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"}}],
                     'results': {'text':'contenu'},
                     'mapping_fields': [],
                    }
