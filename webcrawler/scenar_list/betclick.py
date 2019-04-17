@@ -12,7 +12,6 @@ linkss = {
             {'selection': [{'find_all': {'type': 'div', 'class':'market_matchName'},
                                   'find_all': {'type': 'a'}
                                   },
-
                                      ],
                        'results': {'href': 'attribut1', 'text': 'match_name'},
                        'mapping_fields': [],

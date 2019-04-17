@@ -11,7 +11,7 @@ from webcrawler.scenar_list.betclick import dicto
 class crawlTime():
     def time(self):
         duree = time.time() - Crawler.heure_debut
-        return ("durée webcrawl: {:08.2f} s".format(duree))
+        return ("duree webcrawl: {:08.2f} s".format(duree))
 
 
 class Crawler():
