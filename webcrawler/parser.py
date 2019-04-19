@@ -83,7 +83,7 @@ class Parse():
         '''
 
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        parse_log.info("Nous sommes dans la fonction de recherche type recherche:{0} valeursDeRecherche:{1} ".format(typeRecherche, valeursDeRecherche))
+        parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1} ".format(typeRecherche, valeursDeRecherche))
         try:
             if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
                 obj = [ self.rechercheBF(motif, result) for result in element ]

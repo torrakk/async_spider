@@ -33,7 +33,7 @@ dicto = [
           'data': '',
           'parse':[{'selection': [
                                      {'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"}},
-                                     #{'click': {}},
+                                     {'click': {}},
                                      #{'find_all': {'name': 'span', 'class': "SpriteFlags"}}
                                  ],
                     'results': {'text':'contenu', 'xpath':'xpath'},
