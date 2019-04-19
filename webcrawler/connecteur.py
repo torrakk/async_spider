@@ -68,7 +68,7 @@ class Connect(object):
             #self.session.implicity_wait(random.randint(1, 3)),
             self.session.__getattribute__(self.action)(self.url)
             #element = WebDriverWait(self.session, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "playbutton")))
-            connect_log.debug(self.session.page_source)
+            #connect_log.debug(self.session.page_source)
             self.scenar_obj.url_visited.add(self.url) if self.scenar_obj else None
             return self.session, self.session.page_source
         except(Exception) as e:
