@@ -30,7 +30,9 @@ dicto = [
          {'action': 'get',
           'url': bet_click_url,
           'data': '',
-          'parse':[{'selection': [{'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"}, 'click':{}}
+          'parse':[{'selection': [{'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"},
+                                   'click':{},
+                                   'find_all': {'name': 'span', 'class' : "SpriteFlags"}
                                   ],
                     'results': {'text':'contenu', 'xpath':'xpath'},
                     'mapping_fields': [],
