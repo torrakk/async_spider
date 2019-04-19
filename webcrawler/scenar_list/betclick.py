@@ -32,11 +32,9 @@ dicto = [
           'url': bet_click_url,
           'data': '',
           'parse':[{'selection': [
-                                   OrderedDict([
-                                       ('find_all', {'name': 'span', 'class' : "calendar_sportList_sportName"}),
-                                       ('click', {}),
-                                       ('find_all', {'name': 'span', 'class': "SpriteFlags"})
-                                   ])
+                                     {'find_all', {'name': 'span', 'class' : "calendar_sportList_sportName"}},
+                                     {'click', {}},
+                                     {'find_all', {'name': 'span', 'class': "SpriteFlags"}}
                                  ],
                     'results': {'text':'contenu', 'xpath':'xpath'},
                     'mapping_fields': [],
