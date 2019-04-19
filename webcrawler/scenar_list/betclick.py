@@ -1,4 +1,5 @@
 import re
+from collections import OrderedDict
 bet_click_url = 'https://www.betclic.fr/calendrier-0'
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 
@@ -31,11 +32,11 @@ dicto = [
           'url': bet_click_url,
           'data': '',
           'parse':[{'selection': [
-                                   {
-                                     'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"},
-                                     'click':{},
-                                     #'find_all': {'name': 'span', 'class': "SpriteFlags"}
-                                   }
+                                   OrderedDict([
+                                       ('find_all', {'name': 'span', 'class' : "calendar_sportList_sportName"}),
+                                       ('click', {}),
+                                       ('find_all', {'name': 'span', 'class': "SpriteFlags"})
+                                   ])
                                  ],
                     'results': {'text':'contenu', 'xpath':'xpath'},
                     'mapping_fields': [],
