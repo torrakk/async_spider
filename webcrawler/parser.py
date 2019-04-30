@@ -96,7 +96,7 @@ class Parse():
             #print("ok")
             if isinstance(valeursDeRecherche, dict):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-                print("dictionnaire : ", objetRetour)
+                print("dictionnaire : ", type(objetRetour))
             if isinstance(valeursDeRecherche, str):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
                 print("string : ", objetRetour)
