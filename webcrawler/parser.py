@@ -150,7 +150,7 @@ class Parse():
             ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
-            print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, self.result_partiel))
+            print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, type(self.result_partiel)))
             self.result_partiel = self.rechercheBF(selectionMotif, element)
 
 
