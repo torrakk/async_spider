@@ -102,8 +102,11 @@ class Parse():
                 #print("Nous sommes là 2")
                 objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
             if not valeursDeRecherche:
+                 ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
+                 ## et nous renvoyons l'élément
                  #print("Nous sommes là 3")
-                 objetRetour = self.__getBFmethod(element, typeRecherche)()
+                 self.__getBFmethod(element, typeRecherche)()
+                 return element
         #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
         return objetRetour
         # except(Exception) as e:
