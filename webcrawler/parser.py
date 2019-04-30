@@ -96,9 +96,10 @@ class Parse():
             #print("ok")
             if isinstance(valeursDeRecherche, dict):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-                print(objetRetour)
+                print("dictionnaire : ", objetRetour)
             if isinstance(valeursDeRecherche, str):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
+                print("string : ", objetRetour)
             if not valeursDeRecherche:
                  ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
                  ## et nous renvoyons l'élément
