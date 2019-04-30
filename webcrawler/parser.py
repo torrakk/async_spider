@@ -92,7 +92,7 @@ class Parse():
             objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
         elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
             #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
-            parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche + " element bs :" + str(element))
+            parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche ) #"" element bs :" + str(element))
             #print("ok")
             if isinstance(valeursDeRecherche, dict):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
