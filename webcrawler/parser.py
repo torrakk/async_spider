@@ -101,9 +101,9 @@ class Parse():
                 if isinstance(valeursDeRecherche, str):
                     #print("Nous sommes là")
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-                else:
-                    #print("Nous sommes là")
-                    objetRetour = self.__getBFmethod(element, typeRecherche)()
+                # else i:
+                #     #print("Nous sommes là")
+                #     objetRetour = self.__getBFmethod(element, typeRecherche)()
             #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
             return objetRetour
         except(Exception) as e:
