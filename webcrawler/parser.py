@@ -83,7 +83,7 @@ class Parse():
         '''
 
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1} ".format(typeRecherche, valeursDeRecherche))
+        parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1}, element: {2} ".format(typeRecherche, valeursDeRecherche, type(element)))
         ## TODO: Il faut faire du debug ici afin de pouvoir faire un click sur un objet sans fournir d'argument Voir le dernier if (ça merde encore après modifications)
         # try:
         if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
