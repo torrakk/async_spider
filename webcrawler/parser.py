@@ -95,19 +95,19 @@ class Parse():
                 parse_log.debug('BeautifulSoup !' + str(type(element)) + 'typeRecherche : ' + typeRecherche) #+ " element bs :" + str(element))
                 #print("ok")
                 if isinstance(valeursDeRecherche, dict):
-                    print("Nous sommes ici 1")
+                    #print("Nous sommes ici 1")
                     objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
                     #print(objetRetour)
                 if isinstance(valeursDeRecherche, str):
-                    print("Nous sommes là 2")
+                    #print("Nous sommes là 2")
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
                 if not valeursDeRecherche:
-                     print("Nous sommes là 3")
+                     #print("Nous sommes là 3")
                      objetRetour = self.__getBFmethod(element, typeRecherche)()
             #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
             return objetRetour
         except(Exception) as e:
-            print(e)
+            print("Nous sommes dans une exception du parseur {}".format(e))
             raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
