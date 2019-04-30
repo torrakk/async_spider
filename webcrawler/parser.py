@@ -88,7 +88,7 @@ class Parse():
         # try:
         if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
             obj = [ self.rechercheBF(motif, result) for result in element ]
-            parse_log.debug('BeautifulSoup ! 1 ' + type(element) +  'typeRecherche : ' + typeRecherche + " element bs :" + element)
+            parse_log.debug('BeautifulSoup ! 1 ' + type(element) +  'typeRecherche : ' + typeRecherche ) #+ " element bs :" + element)
             objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
         elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
             #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
