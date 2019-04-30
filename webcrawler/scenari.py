@@ -221,7 +221,7 @@ class scenari(object):
         Counter.tasks -= 1
         #print('Counter.tasks: ', Counter.tasks)
         scenari_log.debug('Counter Tasks : '+ str(Counter.tasks))
-        scenari_log.debug("Nous sommes dans le print futures : " + str(future.result()))
+        #scenari_log.debug("Nous sommes dans le print futures : " + str(future.result()))
         self.__decoLoop()
 
 
