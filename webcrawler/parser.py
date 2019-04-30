@@ -98,17 +98,17 @@ class Parse():
             ## TODO : Il faut contrôler le type d'objet en retour avant de faire le return afin de relancer la fonction de façon récurive
             if isinstance(valeursDeRecherche, dict):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-                print("dictionnaire : ", type(objetRetour))
+
             if isinstance(valeursDeRecherche, str):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-                print("string : ", objetRetour)
+
             if not valeursDeRecherche:
                  ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
                  ## et nous renvoyons l'élément
                  print(element)
                  self.__getBFmethod(element, typeRecherche)()
                  objetRetour = element
-
+        print("objet retour : ", objetRetour)
         #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
         return objetRetour #if not isinstance(objetRetour, liste) else
         # except(Exception) as e:
@@ -150,6 +150,7 @@ class Parse():
             ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
             ## nous prennons la page bf4
             element = self.result_partiel if self.result_partiel else page_bf
+            print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, self.result_partiel))
             self.result_partiel = self.rechercheBF(selectionMotif, element)
 
 
