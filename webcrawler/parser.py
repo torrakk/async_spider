@@ -86,6 +86,7 @@ class Parse():
         parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1} ".format(typeRecherche, valeursDeRecherche))
         ## TODO: Il faut faire du debug ici afin de pouvoir faire un click sur un objet sans fournir d'argument Voir le dernier if (ça merde encore après modifications)
         # try:
+        print(element)
         if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
             obj = [ self.rechercheBF(motif, result) for result in element ]
             parse_log.debug('BeautifulSoup ! 1 ' + type(element) +  'typeRecherche : ' + typeRecherche ) #+ " element bs :" + element)
@@ -95,8 +96,8 @@ class Parse():
             parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche ) #"" element bs :" + str(element))
             #print("ok")
             if isinstance(valeursDeRecherche, dict):
-                objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
                 print("dictionnaire : ", objetRetour)
+                objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
             if isinstance(valeursDeRecherche, str):
                 objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
                 print("string : ", objetRetour)
