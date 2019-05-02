@@ -24,7 +24,8 @@ class Parse():
 
 
         self.page = page
-        self.soup = BeautifulSoup(self.page, 'html.parser')
+        print(type(page))
+        self.soup = BeautifulSoup(self.page, 'html.parser') if isinstance(page, str) else self.page
 
 
 
@@ -69,6 +70,9 @@ class Parse():
         for result in resultSet:
             yield result
 
+    def rechercheSelenium(self, motif, element):
+
+
     @xpath
     def rechercheBF(self, motif, element):
         '''
@@ -102,12 +106,12 @@ class Parse():
                 if isinstance(valeursDeRecherche, str):
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
 
-                if not valeursDeRecherche:
-                     ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
-                     ## et nous renvoyons l'élément
-                     self.__getBFmethod(element, typeRecherche)()
-                     objetRetour = element
-            print("objet retour : ", objetRetour)
+            #     if not valeursDeRecherche:
+            #          ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
+            #          ## et nous renvoyons l'élément
+            #          self.__getBFmethod(element, typeRecherche)()
+            #          objetRetour = element
+            # print("objet retour : ", objetRetour)
             #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
             return objetRetour #if not isinstance(objetRetour, liste) else
         except(Exception) as e:
