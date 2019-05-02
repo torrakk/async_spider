@@ -32,7 +32,7 @@ dicto = [
           'url': bet_click_url,
           'data': '',
           'parse':[{'selection': [
-                                     {'find_all': {'name': 'span', 'class' : "calendar_sportList_sportName"}},
+                                     {'find_element_by_css_selector': 'span.calendar_sportList_sportName'},
                                      {'click': None},
                                      #{'find_all': {'name': 'span', 'class': "SpriteFlags"}}
                                  ],

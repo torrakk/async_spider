@@ -105,7 +105,6 @@ class Parse():
                 if not valeursDeRecherche:
                      ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
                      ## et nous renvoyons l'élément
-                     print(element)
                      self.__getBFmethod(element, typeRecherche)()
                      objetRetour = element
             print("objet retour : ", objetRetour)
