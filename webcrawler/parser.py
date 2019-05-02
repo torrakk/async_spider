@@ -85,35 +85,35 @@ class Parse():
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
         parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1}, element: {2} ".format(typeRecherche, valeursDeRecherche, type(element)))
         ## TODO: Il faut faire du debug ici afin de pouvoir faire un click sur un objet sans fournir d'argument Voir le dernier if (ça merde encore après modifications)
-        # try:
-        if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
-            parse_log.debug('BeautifulSoup ! 1 ' + type(element) + 'typeRecherche : ' + typeRecherche)
-            obj = [ self.rechercheBF(motif, result) for result in element ]
-             #+ " element bs :" + element)
-            objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
-        elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
-            #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
-            parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche ) #"" element bs :" + str(element))
-            #print("ok")
-            ## TODO : Il faut contrôler le type d'objet en retour avant de faire le return afin de relancer la fonction de façon récurive
-            if isinstance(valeursDeRecherche, dict):
-                objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
+        try:
+            if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
+                parse_log.debug('BeautifulSoup ! 1 ' + type(element) + 'typeRecherche : ' + typeRecherche)
+                obj = [ self.rechercheBF(motif, result) for result in element ]
+                 #+ " element bs :" + element)
+                objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
+            elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
+                #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
+                parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche ) #"" element bs :" + str(element))
+                #print("ok")
+                ## TODO : Il faut contrôler le type d'objet en retour avant de faire le return afin de relancer la fonction de façon récurive
+                if isinstance(valeursDeRecherche, dict):
+                    objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
 
-            if isinstance(valeursDeRecherche, str):
-                objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
+                if isinstance(valeursDeRecherche, str):
+                    objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
 
-            if not valeursDeRecherche:
-                 ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
-                 ## et nous renvoyons l'élément
-                 print(element)
-                 self.__getBFmethod(element, typeRecherche)()
-                 objetRetour = element
-        print("objet retour : ", objetRetour)
-        #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
-        return objetRetour #if not isinstance(objetRetour, liste) else
-        # except(Exception) as e:
-        #     print("Nous sommes dans une exception du parseur {}".format(e))
-        #     raise
+                if not valeursDeRecherche:
+                     ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
+                     ## et nous renvoyons l'élément
+                     print(element)
+                     self.__getBFmethod(element, typeRecherche)()
+                     objetRetour = element
+            print("objet retour : ", objetRetour)
+            #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
+            return objetRetour #if not isinstance(objetRetour, liste) else
+        except(Exception) as e:
+            print("Nous sommes dans une exception du parseur {}".format(e))
+            raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
     def parse(self, **kwargs):
