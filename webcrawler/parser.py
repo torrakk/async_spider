@@ -149,7 +149,7 @@ class Parse():
         #parse_log.debug("page affichée :\n" + self.page)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
-        if isinstance(page_bf,)
+        # if isinstance(page_bf,)
         for selectionMotif in selection:
             ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
             ## nous prennons la page bf4
