@@ -72,7 +72,7 @@ class Parse():
     #
     # def rechercheSelenium(self, motif, element):
     #     continue
-    def rechercheSelenium(self, motif, element):
+    # def rechercheSelenium(self, motif, element):
 
     @xpath
     def rechercheBF(self, motif, element):
