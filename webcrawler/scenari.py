@@ -240,7 +240,7 @@ class scenari(object):
         try:
             # if self.page:
             # print(Parse(self.page).getList(self.parse))
-            return self.future.set_result(Parse(self.page).list_parse( self.parse)) if self.parse \
+            return self.future.set_result(Parse(self.session).list_parse( self.parse)) if self.parse \
             else self.future.set_result(self.page)
             # else :
             #     print("Nous sommes dans le fichiers IOBase")

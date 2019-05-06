@@ -13,18 +13,18 @@ from webcrawler.utils import xpath
 
 class Parse():
 
-    def __init__(self, page):
+    def __init__(self, session):
         '''
         Le parser permet de parser une page web en fonction d'une liste de balise et de retourner une selection 
         nous pouvons soit parser une liste de balise, soit une seule.
         voir les méthodes : parse et list_parse
-        :param page: 
+        :param session: l'objet session
         '''
 
 
 
-        self.page = page
-        print(type(page))
+        self.page = session
+        print(type(session))
         self.soup = BeautifulSoup(self.page, 'html.parser') if isinstance(page, str) else self.page
 
 
@@ -72,6 +72,7 @@ class Parse():
     #
     # def rechercheSelenium(self, motif, element):
     #     continue
+    def rechercheSelenium(self, motif, element):
 
     @xpath
     def rechercheBF(self, motif, element):
