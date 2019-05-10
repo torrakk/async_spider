@@ -21,7 +21,8 @@ class Parse():
         voir les méthodes : parse et list_parse
         :param session: l'objet session
         '''
-        parse_log.info("Nous parsons la page")
+
+        parse_log.debug("Nous parsons la page {}".format(type(session)))
         if isinstance(session, webdriver):
             parse_log.debug("Recherche de type selenium")
             self.typeRecherche = self.rechercheSelenium
