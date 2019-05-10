@@ -24,9 +24,11 @@ class Parse():
 
 
         if isinstance(session, webdriver):
+            parse_log.debug("Recherche de type selenium")
             self.typeRecherche = self.rechercheSelenium
             self.page = session
         elif isinstance(session, str):
+            parse_log.debug("Recherche de type BeautifulSoup")
             self.typeRecherche = self.rechercheBF
             self.page = BeautifulSoup(self.page, 'html.parser')
 
