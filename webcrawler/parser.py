@@ -5,6 +5,7 @@
 from bs4 import BeautifulSoup
 import bs4
 from itertools import chain
+from selenium.webdriver.firefox import webdriver
 
 from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import parse_log
@@ -22,16 +23,16 @@ class Parse():
         '''
 
 
-
-        self.page = session
-        print(type(session))
-        self.soup = BeautifulSoup(self.page, 'html.parser') if isinstance(page, str) else self.page
-
-
+        if isinstance(session, webdriver):
+            self.typeRecherche = self.rechercheSelenium
+            self.page = session
+        elif isinstance(session, str):
+            self.typeRecherche = self.rechercheBF
+            self.page = BeautifulSoup(self.page, 'html.parser')
 
     def list_parse(self, list_baliz ):
         '''
-        Permet de parser une liste de balise
+        Permet de parser une liste de balise en appelant la methode parse
         
         :param list: parse une liste de kwargs
         :return: 
@@ -66,6 +67,7 @@ class Parse():
             return getattr(resu, cle)
         return
 
+
     def resultSetIter(self, resultSet):
         for result in resultSet:
             yield result
@@ -78,7 +80,7 @@ class Parse():
     def rechercheBF(self, motif, element):
         '''
         Recherche BF est un generateur permettant de lancer 
-        de manière recursive des coroutines de recherche
+        de manière recursive des coroutines de recherche beautiful soup
         
         :param motif: tuple typeRecherche, valeursDeRecherche
         :param element: bs4.BeautifulSoup or bs4.element.ResultSet
@@ -88,37 +90,27 @@ class Parse():
         '''
 
         typeRecherche, valeursDeRecherche = list(motif.items())[0]
-        parse_log.info("Nous sommes dans la fonction {0} valeursDeRecherche:{1}, element: {2} ".format(typeRecherche, valeursDeRecherche, type(element)))
-        ## TODO: Il faut faire du debug ici afin de pouvoir faire un click sur un objet sans fournir d'argument Voir le dernier if (ça merde encore après modifications)
+        parse_log.debug("Nous sommes dans la fonction {0} valeursDeRecherche:{1}, element: {2} ".format(typeRecherche, valeursDeRecherche, type(element)))
+
         try:
             if isinstance(element, bs4.element.ResultSet) or isinstance(element, list):
                 parse_log.debug('BeautifulSoup ! 1 ' + type(element) + 'typeRecherche : ' + typeRecherche)
                 obj = [ self.rechercheBF(motif, result) for result in element ]
-                 #+ " element bs :" + element)
                 objetRetour = obj if not isinstance(obj[0], list) else list(chain.from_iterable(obj))#list(chain.from_iterable(obj))
             elif isinstance(element, bs4.BeautifulSoup) or isinstance(element, bs4.element.Tag):
-                #print('NOUS SOMMES DANS UN ELEMENT BeautifulSoup !', type(element), element)
                 parse_log.debug('BeautifulSoup ! 2 ' + str(type(element)) + 'typeRecherche : ' + typeRecherche ) #"" element bs :" + str(element))
-                #print("ok")
-                ## TODO : Il faut contrôler le type d'objet en retour avant de faire le return afin de relancer la fonction de façon récurive
                 if isinstance(valeursDeRecherche, dict):
                     objetRetour = self.__getBFmethod(element, typeRecherche)(**valeursDeRecherche)
-
                 if isinstance(valeursDeRecherche, str):
                     objetRetour = self.__getBFmethod(element, typeRecherche)(valeursDeRecherche)
-
-            #     if not valeursDeRecherche:
-            #          ## Si nous voulons exercer un click, une selection ou autre alors nous faisons l'action
-            #          ## et nous renvoyons l'élément
-            #          self.__getBFmethod(element, typeRecherche)()
-            #          objetRetour = element
-            # print("objet retour : ", objetRetour)
-            #print("\nType d'objet retour : ", type(objetRetour), "\nType-valeurs de recherche : ",typeRecherche , " : ", valeursDeRecherche, "\nObjet retour : ", objetRetour)
-            return objetRetour #if not isinstance(objetRetour, liste) else
+            return objetRetour
         except(Exception) as e:
             print("Nous sommes dans une exception du parseur {}".format(e))
             raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
+
+    def chainSeleniumMethods(self, methodes):
+        return eval("self.page." + [ methode(args) for methode, args in methodes.items() ].join("."))
 
     def parse(self, **kwargs):
 
@@ -144,19 +136,21 @@ class Parse():
         selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
                                   kwargs.get('with_parents', None)
 
-        page_bf = self.soup
+        #page_bf = self.soup
         result = []
         parse_log.debug("selection :\n" + str(selection))
         #parse_log.debug("page affichée :\n" + self.page)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
-        # if isinstance(page_bf,)
-        for selectionMotif in selection:
-            ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
-            ## nous prennons la page bf4
-            element = self.result_partiel if self.result_partiel else page_bf
-            print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, type(self.result_partiel)))
-            self.result_partiel = self.rechercheBF(selectionMotif, element)
+        if isinstance(self.page, webdriver):
+            self.result_partiel = self.chainSeleniumMethods(selection)
+        elif isinstance(self.page, str):
+            for selectionMotif in selection:
+                ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
+                ## nous prennons la page bf4
+                element = self.result_partiel if self.result_partiel else self.page
+                print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, type(self.result_partiel)))
+                self.result_partiel = self.typeRecherche(selectionMotif, element)
 
 
         #Permet de renvoyer des résultats non dupliqués si des balises similaires ressortent
@@ -181,6 +175,7 @@ class Parse():
         else:
             parse_log.debug("Le parseur ne trouve pas de résultat")
             return
+
 
     def getList(self, list_baliz):
         '''
