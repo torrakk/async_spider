@@ -3,7 +3,7 @@ STATIC_PATH='/home/paul/'
 
 LOG_PATH='../async_spider.log'
 
-LOG_LEVEL='debug'
+LOG_LEVEL='info'
 # Adresse du guichet adresse
 #GUICHET_ADRESSE = 'https://guichet-adresse.ign.fr/login'
 #GUICHET_ADRESSE = 'https://www.data.gouv.fr/fr/search/?q=servitude+haute-loire'
