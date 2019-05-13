@@ -5,7 +5,7 @@
 from bs4 import BeautifulSoup
 import bs4
 from itertools import chain
-from selenium.webdriver.firefox import webdriver
+from selenium.webdriver.firefox.webdriver import Webdriver
 
 from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import parse_log
@@ -21,9 +21,9 @@ class Parse():
         voir les méthodes : parse et list_parse
         :param session: l'objet session
         '''
-
+        self.webdriver = Webdriver
         parse_log.debug("Nous parsons la page {}".format(type(session)))
-        if isinstance(session, webdriver):
+        if isinstance(session, Webdriver):
             parse_log.debug("Recherche de type selenium")
             self.typeRecherche = self.rechercheSelenium
             self.page = session
@@ -145,7 +145,7 @@ class Parse():
         #parse_log.debug("page affichée :\n" + self.page)
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
-        if isinstance(self.page, webdriver):
+        if isinstance(self.page, self.webdriver):
             self.result_partiel = self.chainSeleniumMethods(selection)
         elif isinstance(self.page, str):
             for selectionMotif in selection:
