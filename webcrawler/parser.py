@@ -14,6 +14,8 @@ from webcrawler.utils import xpath
 
 class Parse():
 
+    webdriver = WebDriver
+
     def __init__(self, session):
         '''
         Le parser permet de parser une page web en fonction d'une liste de balise et de retourner une selection 
@@ -21,9 +23,9 @@ class Parse():
         voir les méthodes : parse et list_parse
         :param session: l'objet session
         '''
-        self.webdriver = Webdriver
+
         parse_log.debug("Nous parsons la page {}".format(type(session)))
-        if isinstance(session, Webdriver):
+        if isinstance(session, self.webdriver):
             parse_log.debug("Recherche de type selenium")
             self.typeRecherche = self.rechercheSelenium
             self.page = session
