@@ -113,9 +113,16 @@ class Parse():
             raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
-    def chainSeleniumMethods(self, methodes):
+    def rechercheSelenium(self, methodes):
+        """
+        Nous chainons les methodes selenium les unes aux autres
+        :param methodes: Dictionnaires des méthodes
+        :return:
+        """
         parse_log.debug('Nous chainons les méthodes selenium')
-        return eval("self.page." + [ methode(args) for methode, args in methodes.items() ].join("."))
+        retour = eval("self.page." + [methode(args) for methode, args in methodes.items()].join("."))
+        print(retour)
+        return retour
 
     def parse(self, **kwargs):
 
