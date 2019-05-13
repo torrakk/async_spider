@@ -5,7 +5,7 @@
 from bs4 import BeautifulSoup
 import bs4
 from itertools import chain
-from selenium.webdriver.firefox.webdriver import Webdriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import parse_log
