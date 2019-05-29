@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-bet_click_url = 'https://www.betclic.fr/calendrier-0'
+bet_click_url = 'https://infinite-scroll.com/demo/full-page/'
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 
 linkss = {
@@ -35,20 +35,20 @@ dicto = [
               ## faire un infinite scroll
               ##https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python
 
-                                      ('find_elements_by_css_selector', 'div.market_matchName'),
-                                      ('nested',
-                                              [
-                                               ('click', None),
-                                               ('back', None), ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
-                                               ]
-                                       )
+                                      ('find_elements_by_css_selector', 'h2.article__title'),
+                                      # ('nested',
+                                      #         [
+                                      #          ('click', None),
+                                      #          ('back', None), ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
+                                      #          ]
+                                      #  )
                                      # ('click', None),
                                      # ('find_elements_by_css_selector', 'label.spriteFlags'),
                                      # ('click', None),
 
                                      #{'find_all': {'name': 'span', 'class': "SpriteFlags"}}
                                  ],
-                    'results': {'text':'contenu', 'xpath':'xpath'},
+                    'results': {'text':'contenu'},
                     'mapping_fields': [],
                    }
                   ],

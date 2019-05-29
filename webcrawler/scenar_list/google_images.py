@@ -1,6 +1,6 @@
 import re
 from collections import OrderedDict
-bet_click_url = 'https://www.betclic.fr/calendrier-0'
+bet_click_url = 'https://www.google.fr/search?hl=fr&tbm=isch&source=hp&biw=1920&bih=925&ei=TePrXI6uIdLIwQKNtb64BA&q=test&oq=test&gs_l=img.3..0l10.2062.2587..2785...0.0..0.192.439.3j1......0....1..gws-wiz-img.....0.d-_p9xm5r3A'
 # Téléchargement des données relatives aux servitudes d'utilité publiques de la ddt de la haute loire
 
 linkss = {
@@ -35,11 +35,15 @@ dicto = [
               ## faire un infinite scroll
               ##https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python
 
-                                      ('find_elements_by_css_selector', 'div.market_matchName'),
+                                      ('find_elements_by_css_selector', 'img.rg_ic.rg_i'),
                                       ('nested',
                                               [
                                                ('click', None),
-                                               ('back', None), ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
+                                                'nested',[
+                                               ('find_elements_by_css_selector', 'div.immersive-container'),
+                                               ('send_keys', 'Keys.ESCAPE')
+                                                ]
+                                                ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
                                                ]
                                        )
                                      # ('click', None),

@@ -115,10 +115,12 @@ class Connect(object):
             if self.javascript:
                 #### Necessaire pour utiliser firefox
                 from pyvirtualdisplay import Display
-                display = Display(visible=0, size=(1024, 768))
+                display = Display(visible=BROWSER_VISIBILITY, size=RESOLUTION)
                 display.start()
                 ####
                 self.session = webdriver.Firefox()
+                self.session.set_window_position(0, 0)
+                self.session.set_window_size(*RESOLUTION)
                 self.session_pool[self.url] = self.session
                 return self._requestJS(**self.scenar)
             else:

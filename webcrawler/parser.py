@@ -6,6 +6,12 @@ from bs4 import BeautifulSoup
 import bs4
 from itertools import chain
 from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.common.exceptions import StaleElementReferenceException, ElementNotInteractableException, \
+    ElementNotSelectableException, ElementNotVisibleException
+from selenium.webdriver.common.keys import Keys
+import traceback
+import time
+import re
 
 from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import parse_log
@@ -15,6 +21,9 @@ from webcrawler.utils import xpath
 class Parse():
 
     webdriver = WebDriver
+    PAUSE = 4
+    DOCSTRING_LIST_WEBELEMENT = re.compile('^.*:Returns:.*- (list of WebElement).*$')
+    DOCSTRING_WEBELEMENT = re.compile('^.*:Returns:.*- (WebElement).*$')
 
     def __init__(self, session):
         '''
@@ -57,7 +66,7 @@ class Parse():
         try:
             return {v: results[k] for k, v in orig.items()}
         except(KeyError):
-            print("le mapping est incorrect \n-orig : {0}\n-reuslts : {1}".format(orig, results))
+            print("le mapping est incorrect \n-orig : {0}\n-results : {1}".format(orig, results))
 
 
     def __getBFmethod(self, resu, cle):
@@ -71,6 +80,19 @@ class Parse():
             return getattr(resu, cle)
         return
 
+    def __getSeleniumMethod(self, resu, cle):
+        '''
+        Méthode permettant d'accéder aux méthodes de beautifulSoup
+        :param resu:
+        :param cle:
+        :return:
+        '''
+        if hasattr(resu, cle):
+            #print('l\'element {} possede la methode {}'.format(resu, cle))
+            return getattr(resu, cle)
+        else:
+            return getattr(self.page, cle)
+        return
 
     def resultSetIter(self, resultSet):
         for result in resultSet:
@@ -113,16 +135,182 @@ class Parse():
             raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
-    def rechercheSelenium(self, methodes):
+    def seleniumRechercheBase(self, item, action, args=None):
+
+        try:
+            methodeSelenium = self.__getSeleniumMethod(item, action)
+        except(Exception) as e:
+            print(e, traceback.format_exc())
+            print("L'objet {} n'a pas de méthode {}".format(item, action))
+            raise
+        return methodeSelenium(args) if args else methodeSelenium()
+
+
+
+
+    def infiniteScrollLocalize(self, item, action, args=None):
+        '''
+        Methode permettant de rechercher un élément dans la page en scrollant
+        :param item: element selenium
+        :param action: Methode selenium a appliquer
+        :param args: Arguments accompagnant la methode selenium
+        :return:
+        '''
+
+        onContinue = True
+        inter = set([])
+        itemDoc = item.__doc__.replace('\n', '')
+        ## Nous remontons en haut de la page
+        self.page.execute_script("window.scrollTo(0, 0)")
+        print('nous cherchons l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
+        while onContinue:
+            time.sleep(self.PAUSE)
+            try:
+                trouve = self.seleniumRechercheBase(item, action, args)
+            except(StaleElementReferenceException):
+                lastHeight = self.page.execute_script("return document.body.scrollHeight")
+                self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(self.PAUSE)
+                newHeight = self.page.execute_script("return document.body.scrollHeight")
+                if newHeight == lastHeight:
+                    onContinue = False
+                lastHeight = newHeight
+            if self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) and trouve:
+                inter.update(trouve)
+            elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
+                return trouve
+            elif item in ('click', 'drag_and_drop'):
+                return None
+        return list(inter)
+
+    # def infiniteScrollSearch(self, item, action, args=None):
+    #     '''
+    #     La methode infinite scroll search permet de faire des recherches d'éléments
+    #     en faisant un scroll infini dans toutes la page
+    #     :param item:
+    #     :param action:
+    #     :param args:
+    #     :return:
+    #     '''
+    #     pause = 4 ## 4 secondes de pause pour le chargement
+    #     onContinue = True
+    #     inter = set([])
+    #     ## Nous remontons en haut de la page
+    #     self.page.execute_script("window.scrollTo(0, 0)")
+    #
+    #     #print('nous cherchons dans les éléments {}'.format(type(item), item.text if type(item) != type(self.page) else ''))
+    #     while onContinue:
+    #         try:
+    #             trouve = self.seleniumRechercheBase(item, action, args)
+    #             if trouve:
+    #                 inter.update(set(trouve))
+    #             lastHeight = self.page.execute_script("return document.body.scrollHeight")
+    #             self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    #             time.sleep(self.PAUSE)
+    #             newHeight = self.page.execute_script("return document.body.scrollHeight")
+    #             if newHeight == lastHeight:
+    #                 onContinue = False
+    #             lastHeight = newHeight
+    #
+    #         except(Exception) as e:
+    #             print(e, traceback.format_exc())
+    #             raise
+    #
+    #     return list(inter)
+
+    def rechercheNestedSelenium(self, selection, resultats):
+        '''
+        Permet d'effecteur une recherche sur les éléments inclus dans des recherches
+        :param selection:
+        :param resultats:
+        :return:
+        '''
+
+        #select = (i for i in selection)
+        resultat = resultats
+        parse_log.debug("resultats nested: " + str(resultat))
+        # try:
+        for item in resultat:
+            print("Nous sommes à l'item nested {}".format(item))
+            select = (i for i in selection)
+            resultat_inter = ''
+            while select:
+                print("PETITE PAUSE \n\n")
+                time.sleep(self.PAUSE)
+                try:
+                    action, args = next(select)
+                    print("Nous faisons l'action {} {} ".format(action, args))
+                    if action == "nested":
+                        self.rechercheNestedSelenium(args, resultat if resultat else None)
+                    else:
+                        trouve = self.infiniteScrollLocalize(item, action, args)
+                    if trouve:
+                        resultat_inter += trouve
+                except(TypeError) as e:
+                    print(e, traceback.format_exc())
+                    raise
+                except(StaleElementReferenceException):
+                    inter = self.infiniteScrollLocalize(item, action, args)
+                    if not inter:
+                        print("\n ## Nous n'avons pas trouvé l'élément \n ")
+                except(StopIteration):
+                    print('Nous avons chopé l\'exception de sortie')
+                    break
+
+        ## Retour à la page principale
+        self.page.switch_to_window(self.pagePrincipale)
+
+        return resultat_inter
+
+    def rechercheSelenium(self, selection, resultats=None):
         """
         Nous chainons les methodes selenium les unes aux autres
+        Plusieurs recherches différentes peuvent être réalisées
+        -1 recherche classiques de plusieurs éléments
+        -2 Recherches classique puis à partir des cette dernière -- > recherche d'éléments imbriqués -
+        cad que nous allons aller vers un groupe d'éléments puis revenir au principal
+
         :param methodes: Dictionnaires des méthodes
         :return:
         """
         parse_log.debug('Nous chainons les méthodes selenium')
-        retour = eval("self.page." + [methode(args) for methode, args in methodes.items()].join("."))
-        print(retour)
-        return retour
+        # methodes_chaines = "self.page."+ ".".join(["{}(**{})".format(func, args) if isinstance(args, dict) else \
+        #     "{}({})".format(func, "'{}'".format(str(args)) if args else '')  for item in selection for func, args in item.items()])
+        # parse_log.debug(methodes_chaines)
+
+
+        ## Page principale de référence
+        self.pagePrincipale = self.page.current_window_handle
+
+        # nous faisons un generateur
+        select = (i for i in selection)
+
+        if not resultats:
+            action_prem, args = next(select)
+            resultat = self.infiniteScrollLocalize(self.page, action_prem, args)
+        else:
+            resultat = resultats
+        # try:
+        while select:
+            try:
+                action, args = next(select)
+                print("action args : {} {}".format(action, args))
+                resultat_inter = ''
+                if isinstance(resultat, list) or isinstance(resultat, set):
+                    resultat_inter = set([])
+                    parse_log.debug('Nous avons plusieurs resultats :\n{}'.format(args, str([i.text for i in resultat])))
+                    for result_uniq in resultat:
+                         resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
+                elif isinstance(resultat, self.page._web_element_cls):
+                    resultat_inter = self.infiniteScrollLocalize(self.page, action, args)
+                resultat = resultat_inter if resultat_inter else resultat
+            except(StopIteration):
+                break
+        return resultat
+        # except(Exception) as e:
+        #     print(e, traceback.format_exc())
+        #     raise
+
 
     def parse(self, **kwargs):
 
@@ -139,10 +327,10 @@ class Parse():
         '''
 
 
-        try:
-            assert type(self.page)==str, "La page doit être de type string"
-        except AssertionError:
-            return
+        # try:
+        #     assert type(self.page)==str, "La page doit être de type string"
+        # except AssertionError:
+        #     return
 
 
         selection, resultat, with_parents = kwargs['selection'].copy(), kwargs['results'].copy(),\
@@ -155,7 +343,7 @@ class Parse():
         #     ##faire un iterateur qui renvoi une exception en cas de fin d'iteration
         self.result_partiel = None
         if isinstance(self.page, self.webdriver):
-            self.result_partiel = self.chainSeleniumMethods(selection)
+            self.result_partiel = self.rechercheSelenium(selection)
         elif isinstance(self.page, str):
             for selectionMotif in selection:
                 ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
@@ -173,6 +361,7 @@ class Parse():
                     result.append(item)
         else:
             result = self.result_partiel
+
         # for i in result:
         #     print(type(i), i, len(i))
             # for g in i:
@@ -180,10 +369,13 @@ class Parse():
         ## TODO : tester avec betclick pour que l'on retourne toutes les valeurs des matchs et developper le mapping fields pour que nous puissions injecter directement avec django
         ##
         if result:
-            parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
+            # print(result)
+            #parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
-            return [self.__mapp(resultat, {cle: item.get(cle) if cle != 'text' else item.getText().strip()
+            resultat = [self.__mapp(resultat, {cle: getattr(item, cle) if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
                                                        for cle in resultat.keys()}) for item in result ]
+            print(resultat)
+            return resultat
         else:
             parse_log.debug("Le parseur ne trouve pas de résultat")
             return

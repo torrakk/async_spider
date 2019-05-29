@@ -3,7 +3,7 @@ import time
 from logging2 import Logger
 import re
 from io import IOBase
-from selenium import webdriver
+
 from webcrawler.parser import Parse
 from webcrawler.connecteur import Connect
 from webcrawler.utils import validateUrl, joinUrl
@@ -240,8 +240,9 @@ class scenari(object):
         try:
             # if self.page:
             # print(Parse(self.page).getList(self.parse))
-            return self.future.set_result(Parse(self.session).list_parse( self.parse)) if self.parse \
-            else self.future.set_result(self.page)
+            resultats = self.future.set_result(Parse(self.session).list_parse(self.parse)) if self.parse \
+                else self.future.set_result(self.page)
+            return resultats
             # else :
             #     print("Nous sommes dans le fichiers IOBase")
         except(TypeError) as e:

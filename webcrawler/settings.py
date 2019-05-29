@@ -20,3 +20,8 @@ CODES={'username':LOGIN, 'password':MDP, }
 
 ## Timeout de session
 TIMEOUT = 3000
+
+## SELENIUM
+
+BROWSER_VISIBILITY = 1
+RESOLUTION=(1366, 768)
