@@ -56,7 +56,7 @@ from selenium import webdriver
 browser = webdriver.Firefox()
 
 print(getDocstring(browser._web_element_cls.click))
-print(getDocstring(browser.find_elements_by_class_name))
+print(getDocstring(browser.find_element_by_class_name))
 # getDocstring(TEXT)
 # browser.close()
 # def generateur(list, pas):

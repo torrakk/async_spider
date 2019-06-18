@@ -291,7 +291,7 @@ class Parse():
         else:
             resultat = resultats
         # try:
-        ## TODO : problème de git merge
+
         while select:
             try:
                 action, args = next(select)
