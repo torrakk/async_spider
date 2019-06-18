@@ -145,8 +145,18 @@ class Parse():
             raise
         return methodeSelenium(args) if args else methodeSelenium()
 
-
-
+    def scroll(self, lastHeight):
+        '''
+        Permet le scroll
+        :return:
+        '''
+        print('scroolll')
+        self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        newHeight = self.page.execute_script("return document.body.scrollHeight;")
+        if newHeight == lastHeight:
+            print('le scroll s\'arrête')
+            return False, newHeight
+        return True, newHeight
 
     def infiniteScrollLocalize(self, item, action, args=None):
         '''
@@ -159,29 +169,41 @@ class Parse():
 
         onContinue = True
         inter = set([])
-        itemDoc = item.__doc__.replace('\n', '')
+        try:
+            itemDoc = item.__doc__.replace('\n', '')
+        except(AttributeError):
+            itemDoc = item.__doc__
+        finally:
+            if not itemDoc:
+                itemDoc = ''
+        print(itemDoc)
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
-        print('nous cherchons l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
+
+        print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
+        lastHeight = self.page.execute_script("return document.body.scrollHeight")
         while onContinue:
-            time.sleep(self.PAUSE)
             try:
                 trouve = self.seleniumRechercheBase(item, action, args)
-            except(StaleElementReferenceException):
-                lastHeight = self.page.execute_script("return document.body.scrollHeight")
-                self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(self.PAUSE)
-                newHeight = self.page.execute_script("return document.body.scrollHeight")
-                if newHeight == lastHeight:
-                    onContinue = False
-                lastHeight = newHeight
-            if self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) and trouve:
-                inter.update(trouve)
-            elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
-                return trouve
-            elif item in ('click', 'drag_and_drop'):
-                return None
-        return list(inter)
+                print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
+                if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
+                    print("Nous sommes dans le cas de figure 1")
+                    inter.update(trouve)
+                elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
+                    print("Nous sommes dans le cas de figure 2")
+                    return trouve
+                elif item in ('click', 'drag_and_drop'):
+                    print("Nous sommes dans le cas de figure 3")
+                    return None
+            except(Exception) as e:
+                print(e, traceback.format_exc())
+                raise
+
+            onContinue, newHeight = self.scroll(lastHeight)
+            lastHeight = newHeight
+
+
+        return list(inter) if inter else None
 
     # def infiniteScrollSearch(self, item, action, args=None):
     #     '''

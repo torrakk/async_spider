@@ -36,16 +36,16 @@ dicto = [
               ##https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python
 
                                       ('find_elements_by_css_selector', 'img.rg_ic.rg_i'),
-                                      ('nested',
-                                              [
-                                               ('click', None),
-                                                'nested',[
-                                               ('find_elements_by_css_selector', 'div.immersive-container'),
-                                               ('send_keys', 'Keys.ESCAPE')
-                                                ]
-                                                ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
-                                               ]
-                                       )
+                                      # ('nested',
+                                      #         [
+                                      #          ('click', None),
+                                      #           'nested',[
+                                      #          ('find_elements_by_css_selector', 'div.immersive-container'),
+                                      #          ('send_keys', 'Keys.ESCAPE')
+                                      #           ]
+                                      #           ## TODO il faut pouvoir appliquer la méthode suivante https://gist.github.com/lrhache/7686903 et non pas le back
+                                      #          ]
+                                      #  )
                                      # ('click', None),
                                      # ('find_elements_by_css_selector', 'label.spriteFlags'),
                                      # ('click', None),
