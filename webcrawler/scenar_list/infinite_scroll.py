@@ -35,7 +35,9 @@ dicto = [
               ## faire un infinite scroll
               ##https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python
 
-                                      ('find_elements_by_css_selector', 'h2.article__title'),
+                                      ('find_elements_by_css_selector', 'article.article'),
+                                      ('find_elements_by_css_selector', 'h2'),
+
                                       # ('nested',
                                       #         [
                                       #          ('click', None),

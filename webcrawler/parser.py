@@ -151,8 +151,11 @@ class Parse():
         :return:
         '''
         print('scroolll')
-        self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        newHeight = self.page.execute_script("return document.body.scrollHeight;")
+        self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+        #self.page.implicitly_wait(self.PAUSE)
+        time.sleep(self.PAUSE)
+        newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
+        print(lastHeight, newHeight)
         if newHeight == lastHeight:
             print('le scroll s\'arrête')
             return False, newHeight
@@ -176,12 +179,13 @@ class Parse():
         finally:
             if not itemDoc:
                 itemDoc = ''
-        print(itemDoc)
+        print(itemDoc,'\ntype d\'item : ', type(item))
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
 
-        print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
-        lastHeight = self.page.execute_script("return document.body.scrollHeight")
+        #print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
+        lastHeight = self.page.execute_script("return document.documentElement.scrollHeight")
+        print("lastHeight : ", lastHeight)
         while onContinue:
             try:
                 trouve = self.seleniumRechercheBase(item, action, args)
@@ -317,7 +321,7 @@ class Parse():
         while select:
             try:
                 action, args = next(select)
-                print("action args : {} {}".format(action, args))
+                parse_log.debug("action args : {} {}".format(action, args))
                 resultat_inter = ''
                 if isinstance(resultat, list) or isinstance(resultat, set):
                     resultat_inter = set([])
