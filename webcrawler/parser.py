@@ -179,10 +179,13 @@ class Parse():
         finally:
             if not itemDoc:
                 itemDoc = ''
-        print(itemDoc,'\ntype d\'item : ', type(item))
+        try:
+            print(itemDoc,'\ntype d\'item : ', type(item.tag_name))
+        except(AttributeError) as e:
+            print(itemDoc, '\ntype d\'item : ', type(item))
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
-
+        print("Remontée en haut de page")
         #print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
         lastHeight = self.page.execute_script("return document.documentElement.scrollHeight")
         print("lastHeight : ", lastHeight)

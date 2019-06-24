@@ -37,6 +37,7 @@ dicto = [
 
                                       ('find_elements_by_css_selector', 'article.article'),
                                       ('find_elements_by_css_selector', 'h2'),
+                                      ('find_elements_by_css_selector', 'a'),
 
                                       # ('nested',
                                       #         [
@@ -50,7 +51,7 @@ dicto = [
 
                                      #{'find_all': {'name': 'span', 'class': "SpriteFlags"}}
                                  ],
-                    'results': {'text':'contenu'},
+                    'results': {'href':'lien'},
                     'mapping_fields': [],
                    }
                   ],
