@@ -158,6 +158,105 @@ class Parse():
         print(lastHeight, newHeight)
         if newHeight == lastHeight:
             print('le scroll s\'arrête')
+            self.page.execute_script("window.scrollTo(0, 0)")
+            return False, newHeight
+        return True, newHeight
+
+
+
+    # def infiniteScrollSearch(self, item, action, args=None):
+    #     '''
+    #     La methode infinite scroll search permet de faire des recherches d'éléments
+    #     en faisant un scroll infini dans toutes la page
+    #     :param item:
+    #     :param action:
+    #     :param args:
+    #     :return:
+    #     '''
+    #     pause = 4 ## 4 secondes de pause pour le chargement
+    #     onContinue = True
+    #     inter = set([])
+    #     ## Nous remontons en haut de la page
+    #     self.page.execute_script("window.scrollTo(0, 0)")
+    #
+    #     #print('nous cherchons dans les éléments {}'.format(type(item), item.text if type(item) != type(self.page) else ''))
+    #     while onContinue:
+    #         try:
+    #             trouve = self.seleniumRechercheBase(item, action, args)
+    #             if trouve:
+    #                 inter.update(set(trouve))
+    #             lastHeight = self.page.execute_script("return document.body.scrollHeight")
+    #             self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    #             time.sleep(self.PAUSE)
+    #             newHeight = self.page.execute_script("return document.body.scrollHeight")
+    #             if newHeight == lastHeight:
+    #                 onContinue = False
+    #             lastHeight = newHeight
+    #
+    #         except(Exception) as e:
+    #             print(e, traceback.format_exc())
+    #             raise
+    #
+    #     return list(inter)
+
+    # def rechercheNestedSelenium(self, selection, resultats):
+    #     '''
+    #     Permet d'effecteur une recherche sur les éléments inclus dans des recherches
+    #     :param selection:
+    #     :param resultats:
+    #     :return:
+    #     '''
+    #
+    #     #select = (i for i in selection)
+    #     resultat = resultats
+    #     parse_log.debug("resultats nested: " + str(resultat))
+    #     # try:
+    #     for item in resultat:
+    #         print("Nous sommes à l'item nested {}".format(item))
+    #         select = (i for i in selection)
+    #         resultat_inter = ''
+    #         while select:
+    #             print("PETITE PAUSE \n\n")
+    #             time.sleep(self.PAUSE)
+    #             try:
+    #                 action, args = next(select)
+    #                 print("Nous faisons l'action {} {} ".format(action, args))
+    #                 if action == "nested":
+    #                     self.rechercheNestedSelenium(args, resultat if resultat else None)
+    #                 else:
+    #                     trouve = self.infiniteScrollLocalize(item, action, args)
+    #                 if trouve:
+    #                     resultat_inter += trouve
+    #             except(TypeError) as e:
+    #                 print(e, traceback.format_exc())
+    #                 raise
+    #             except(StaleElementReferenceException):
+    #                 inter = self.infiniteScrollLocalize(item, action, args)
+    #                 if not inter:
+    #                     print("\n ## Nous n'avons pas trouvé l'élément \n ")
+    #             except(StopIteration):
+    #                 print('Nous avons chopé l\'exception de sortie')
+    #                 break
+    #
+    #     ## Retour à la page principale
+    #     self.page.switch_to_window(self.pagePrincipale)
+    #
+    #     return resultat_inter
+
+    def scroll(self, lastHeight):
+        '''
+        Permet le scroll
+        :return:
+        '''
+        print('scroolll')
+        self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+        #self.page.implicitly_wait(self.PAUSE)
+        time.sleep(self.PAUSE)
+        newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
+        print(lastHeight, newHeight)
+        if newHeight == lastHeight:
+            print('le scroll s\'arrête')
+            self.page.execute_script("window.scrollTo(0, 0)")
             return False, newHeight
         return True, newHeight
 
@@ -211,85 +310,6 @@ class Parse():
 
         print("List inter :", [i.tag_name for i in inter])
         return list(inter) if inter else None
-
-    # def infiniteScrollSearch(self, item, action, args=None):
-    #     '''
-    #     La methode infinite scroll search permet de faire des recherches d'éléments
-    #     en faisant un scroll infini dans toutes la page
-    #     :param item:
-    #     :param action:
-    #     :param args:
-    #     :return:
-    #     '''
-    #     pause = 4 ## 4 secondes de pause pour le chargement
-    #     onContinue = True
-    #     inter = set([])
-    #     ## Nous remontons en haut de la page
-    #     self.page.execute_script("window.scrollTo(0, 0)")
-    #
-    #     #print('nous cherchons dans les éléments {}'.format(type(item), item.text if type(item) != type(self.page) else ''))
-    #     while onContinue:
-    #         try:
-    #             trouve = self.seleniumRechercheBase(item, action, args)
-    #             if trouve:
-    #                 inter.update(set(trouve))
-    #             lastHeight = self.page.execute_script("return document.body.scrollHeight")
-    #             self.page.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    #             time.sleep(self.PAUSE)
-    #             newHeight = self.page.execute_script("return document.body.scrollHeight")
-    #             if newHeight == lastHeight:
-    #                 onContinue = False
-    #             lastHeight = newHeight
-    #
-    #         except(Exception) as e:
-    #             print(e, traceback.format_exc())
-    #             raise
-    #
-    #     return list(inter)
-
-    def rechercheNestedSelenium(self, selection, resultats):
-        '''
-        Permet d'effecteur une recherche sur les éléments inclus dans des recherches
-        :param selection:
-        :param resultats:
-        :return:
-        '''
-
-        #select = (i for i in selection)
-        resultat = resultats
-        parse_log.debug("resultats nested: " + str(resultat))
-        # try:
-        for item in resultat:
-            print("Nous sommes à l'item nested {}".format(item))
-            select = (i for i in selection)
-            resultat_inter = ''
-            while select:
-                print("PETITE PAUSE \n\n")
-                time.sleep(self.PAUSE)
-                try:
-                    action, args = next(select)
-                    print("Nous faisons l'action {} {} ".format(action, args))
-                    if action == "nested":
-                        self.rechercheNestedSelenium(args, resultat if resultat else None)
-                    else:
-                        trouve = self.infiniteScrollLocalize(item, action, args)
-                    if trouve:
-                        resultat_inter += trouve
-                except(TypeError) as e:
-                    print(e, traceback.format_exc())
-                    raise
-                except(StaleElementReferenceException):
-                    inter = self.infiniteScrollLocalize(item, action, args)
-                    if not inter:
-                        print("\n ## Nous n'avons pas trouvé l'élément \n ")
-                except(StopIteration):
-                    print('Nous avons chopé l\'exception de sortie')
-                    break
-
-        ## Retour à la page principale
-        self.page.switch_to_window(self.pagePrincipale)
-
-        return resultat_inter
 
     def rechercheSelenium(self, selection, resultats=None):
         """
