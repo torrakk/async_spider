@@ -209,7 +209,7 @@ class Parse():
             onContinue, newHeight = self.scroll(lastHeight)
             lastHeight = newHeight
 
-
+        print("List inter :", [i.tag_name for i in inter])
         return list(inter) if inter else None
 
     # def infiniteScrollSearch(self, item, action, args=None):
