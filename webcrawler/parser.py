@@ -328,13 +328,19 @@ class Parse():
                 resultat_inter = ''
                 if isinstance(resultat, list) or isinstance(resultat, set):
                     resultat_inter = set([])
-                    parse_log.debug('Nous avons plusieurs resultats :\n{}'.format(args, str([i.text for i in resultat])))
+                    parse_log.debug('Nous avons plusieurs resultats :\n{} {}'.format(args, str([i.text for i in resultat])))
                     for result_uniq in resultat:
                          resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
                 elif isinstance(resultat, self.page._web_element_cls):
+                    parse_log.debug(
+                        'Nous avons un resultat unique :\n{} {}'.format(args, resultat.text))
                     resultat_inter = self.infiniteScrollLocalize(self.page, action, args)
                 resultat = resultat_inter if resultat_inter else resultat
+                parse_log.debug(
+                    'Resultat :\n{}'.format(resultat))
             except(StopIteration):
+                parse_log.debug(
+                    '''Signal d\'arrêt d\'iteration' :{}\n{}'''.format(args, resultat))
                 break
         return resultat
         # except(Exception) as e:
