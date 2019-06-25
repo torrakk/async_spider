@@ -248,17 +248,21 @@ class Parse():
         Permet le scroll
         :return:
         '''
-        print('scroolll')
-        self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-        #self.page.implicitly_wait(self.PAUSE)
-        time.sleep(self.PAUSE)
-        newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
-        print(lastHeight, newHeight)
-        if newHeight == lastHeight:
-            print('le scroll s\'arrête')
-            self.page.execute_script("window.scrollTo(0, 0)")
-            return False, newHeight
-        return True, newHeight
+        try:
+            print('scroolll')
+            self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+            #self.page.implicitly_wait(self.PAUSE)
+            time.sleep(self.PAUSE)
+            newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
+            print(lastHeight, newHeight)
+            if newHeight == lastHeight:
+                print('le scroll s\'arrête')
+                self.page.execute_script("window.scrollTo(0, 0)")
+                return False, newHeight
+            return True, newHeight
+        except(Exception) as e:
+            print(e, traceback.format_exc())
+            raise
 
     def infiniteScrollLocalize(self, item, action, args=None):
         '''
