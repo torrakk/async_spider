@@ -176,9 +176,7 @@ class Parse():
             itemDoc = item.__doc__.replace('\n', '')
         except(AttributeError):
             itemDoc = item.__doc__
-        finally:
-            if not itemDoc:
-                itemDoc = ''
+
         try:
             print(itemDoc,'\ntype d\'item : ', item.tag_name)
         except(AttributeError) as e:
