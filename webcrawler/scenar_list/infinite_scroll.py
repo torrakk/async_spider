@@ -36,7 +36,7 @@ dicto = [
               ##https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python
 
                                       ('find_elements_by_css_selector', 'article.article'),
-                                      ('find_elements_by_css_selector', 'h2'),
+                                      #('find_elements_by_css_selector', 'h2'),
                                       ('find_elements_by_css_selector', 'a'),
 
                                       # ('nested',

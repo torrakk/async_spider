@@ -180,9 +180,9 @@ class Parse():
             if not itemDoc:
                 itemDoc = ''
         try:
-            print(itemDoc,'\ntype d\'item : ', type(item.tag_name))
+            print(itemDoc,'\ntype d\'item : ', item.tag_name)
         except(AttributeError) as e:
-            print(itemDoc, '\ntype d\'item : ', type(item))
+            print(itemDoc, '\ntype d\'item : ', item)
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
         print("Remontée en haut de page")
