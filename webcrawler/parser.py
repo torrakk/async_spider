@@ -358,7 +358,7 @@ class Parse():
                             resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
                         except(TypeError):
                             ## si la liste est vide, nous ne pouvons pas itérer dessus
-                            continue
+                            break
                 elif isinstance(resultat, self.page._web_element_cls):
                     parse_log.debug(
                         'Nous avons un resultat unique :\n{} {}'.format(args, resultat.text))
