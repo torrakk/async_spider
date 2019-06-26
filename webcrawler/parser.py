@@ -352,10 +352,10 @@ class Parse():
                 resultat_inter = ''
                 if isinstance(resultat, list) or isinstance(resultat, set):
                     resultat_inter = set([])
-                    print("RESULTAT", resultat)
                     #parse_log.debug('Nous avons plusieurs resultats :\n{} {}'.format(args, str([i.text for i in resultat])))
                     for result_uniq in resultat:
-                         resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
+                        print("RESULTAT : ", result_uniq)
+                        resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
                 elif isinstance(resultat, self.page._web_element_cls):
                     parse_log.debug(
                         'Nous avons un resultat unique :\n{} {}'.format(args, resultat.text))
