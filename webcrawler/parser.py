@@ -251,7 +251,7 @@ class Parse():
         try:
             print('scroolll')
             self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-            #self.page.implicitly_wait(self.PAUSE)
+            self.page.implicitly_wait(self.PAUSE)
             time.sleep(self.PAUSE)
             newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
             print(lastHeight, newHeight)
