@@ -354,7 +354,7 @@ class Parse():
                     resultat_inter = set([])
                     #parse_log.debug('Nous avons plusieurs resultats :\n{} {}'.format(args, str([i.text for i in resultat])))
                     for result_uniq in resultat:
-                        print("RESULTAT : ", result_uniq)
+                        print("RESULTAT : ", result_uniq.text)
                         resultat_inter.update(self.infiniteScrollLocalize(result_uniq, action, args))
                 elif isinstance(resultat, self.page._web_element_cls):
                     parse_log.debug(
