@@ -251,7 +251,7 @@ class Parse():
         try:
             print('scroolll')
             self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-            self.page.implicitly_wait(self.PAUSE)
+            #self.page.implicitly_wait(self.PAUSE)
             time.sleep(self.PAUSE)
             newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
             print(lastHeight, newHeight)
@@ -366,6 +366,10 @@ class Parse():
                 parse_log.debug(
                     '''Signal d\'arrêt d\'iteration' :{}\n{}'''.format(args, resultat))
                 break
+            except(Exception) as e:
+                print(e, traceback.format_exc())
+                raise
+
         return resultat
         # except(Exception) as e:
         #     print(e, traceback.format_exc())
