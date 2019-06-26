@@ -51,7 +51,7 @@ dicto = [
 
                                      #{'find_all': {'name': 'span', 'class': "SpriteFlags"}}
                                  ],
-                    'results': {'text':'texte'},
+                    'results': {'href':'lien', 'text': 'texte'},
                     'mapping_fields': [],
                    }
                   ],

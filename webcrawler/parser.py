@@ -249,14 +249,11 @@ class Parse():
         :return:
         '''
         try:
-            print('scroolll')
             self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
             #self.page.implicitly_wait(self.PAUSE)
             time.sleep(self.PAUSE)
             newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
-            print(lastHeight, newHeight)
             if newHeight == lastHeight:
-                print('le scroll s\'arrête')
                 self.page.execute_script("window.scrollTo(0, 0)")
                 return False, newHeight
             return True, newHeight
@@ -282,28 +279,21 @@ class Parse():
         finally:
             if not itemDoc:
                 itemDoc = ''
-        try:
-            print(itemDoc,'\ntype d\'item : ', item.tag_name)
-        except(AttributeError) as e:
-            print(itemDoc, '\ntype d\'item : ', item)
+
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
         print("Remontée en haut de page")
         #print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
         lastHeight = self.page.execute_script("return document.documentElement.scrollHeight")
-        print("lastHeight : ", lastHeight)
         while onContinue:
             try:
                 trouve = self.seleniumRechercheBase(item, action, args)
                 print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
-                    print("Nous sommes dans le cas de figure 1")
                     inter.update(trouve)
                 elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
-                    print("Nous sommes dans le cas de figure 2")
                     return trouve
                 elif item in ('click', 'drag_and_drop'):
-                    print("Nous sommes dans le cas de figure 3")
                     return None
             except(Exception) as e:
                 print(e, traceback.format_exc())
@@ -441,7 +431,7 @@ class Parse():
             # print(result)
             #parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
-            resultat = [self.__mapp(resultat, {cle: getattr(item, cle) if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
+            resultat = [self.__mapp(resultat, {cle: getattr(item, cle, '') if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
                                                        for cle in resultat.keys()}) for item in result ]
             print(resultat)
             return resultat
