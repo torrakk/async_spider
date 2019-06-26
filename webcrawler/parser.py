@@ -431,7 +431,7 @@ class Parse():
             # print(result)
             #parse_log.debug("resultat du parseur" + str(result) +str([i.__dict__ for i in result])+ " type : "+ str(type(result)))
             #parse_log.debug("{}".format([[(item.__dict__, item.get(cle)) if cle != 'text' else item.getText().strip() for cle in resultat.keys()] for item in result ]))
-            resultat = [self.__mapp(resultat, {cle: getattr(item, cle, '') if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
+            resultat = [self.__mapp(resultat, {cle: item.get_attribute("href") or getattr(item, cle, '') if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
                                                        for cle in resultat.keys()}) for item in result ]
             print(resultat)
             return resultat
