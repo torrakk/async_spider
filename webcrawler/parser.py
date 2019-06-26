@@ -369,6 +369,7 @@ class Parse():
             except(StopIteration):
                 parse_log.debug(
                     '''Signal d\'arrêt d\'iteration' :{}\n{}'''.format(args, resultat))
+                resultat = resultat_inter if resultat_inter else resultat
                 break
             except(Exception) as e:
                 print(e, traceback.format_exc())
