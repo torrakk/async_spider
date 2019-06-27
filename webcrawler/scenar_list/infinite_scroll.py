@@ -38,6 +38,7 @@ dicto = [
                                       ('find_elements_by_css_selector', 'article.article'),
                                       #('find_elements_by_css_selector', 'h2'),
                                       ('find_elements_by_css_selector', 'a'),
+                                      # TODO : tester avec le click, pour voir ce que cela fait
 
                                       # ('nested',
                                       #         [

@@ -135,32 +135,7 @@ class Parse():
             raise
         #print(" !!! \n\n Nous sommes dans un cas special ", type(element))
 
-    def seleniumRechercheBase(self, item, action, args=None):
 
-        try:
-            methodeSelenium = self.__getSeleniumMethod(item, action)
-        except(Exception) as e:
-            print(e, traceback.format_exc())
-            print("L'objet {} n'a pas de méthode {}".format(item, action))
-            raise
-        return methodeSelenium(args) if args else methodeSelenium()
-
-    def scroll(self, lastHeight):
-        '''
-        Permet le scroll
-        :return:
-        '''
-        print('scroolll')
-        self.page.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
-        #self.page.implicitly_wait(self.PAUSE)
-        time.sleep(self.PAUSE)
-        newHeight = self.page.execute_script("return document.documentElement.scrollHeight")
-        print(lastHeight, newHeight)
-        if newHeight == lastHeight:
-            print('le scroll s\'arrête')
-            self.page.execute_script("window.scrollTo(0, 0)")
-            return False, newHeight
-        return True, newHeight
 
 
 
@@ -261,6 +236,17 @@ class Parse():
             print(e, traceback.format_exc())
             raise
 
+    def seleniumRechercheBase(self, item, action, args=None):
+
+        try:
+            methodeSelenium = self.__getSeleniumMethod(item, action)
+        except(Exception) as e:
+            print(e, traceback.format_exc())
+            print("L'objet {} n'a pas de méthode {}".format(item, action))
+            raise
+        return methodeSelenium(args) if args else methodeSelenium()
+
+
     def infiniteScrollLocalize(self, item, action, args=None):
         '''
         Methode permettant de rechercher un élément dans la page en scrollant
@@ -282,13 +268,13 @@ class Parse():
 
         ## Nous remontons en haut de la page
         self.page.execute_script("window.scrollTo(0, 0)")
-        print("Remontée en haut de page")
+        #print("Remontée en haut de page")
         #print('nous cherchons dans l\'élément {} l\'élément {}'.format(type(item), item.text if type(item)!=type(self.page) else '' ))
         lastHeight = self.page.execute_script("return document.documentElement.scrollHeight")
         while onContinue:
             try:
                 trouve = self.seleniumRechercheBase(item, action, args)
-                print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
+                #print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
                     inter.update(trouve)
                 elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
@@ -302,7 +288,7 @@ class Parse():
             onContinue, newHeight = self.scroll(lastHeight)
             lastHeight = newHeight
 
-        print("List inter :", [i.tag_name for i in inter])
+        #print("List inter :", [i.tag_name for i in inter])
         return list(inter) if inter else None
 
     def rechercheSelenium(self, selection, resultats=None):
@@ -408,7 +394,7 @@ class Parse():
                 ## Si il existe un resultat partiel alors celui-ci est affecté à l'élément sinon
                 ## nous prennons la page bf4
                 element = self.result_partiel if self.result_partiel else self.page
-                print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, type(self.result_partiel)))
+                #print("Objet en retour dans boucle des motifs {}, result partiel : {}".format(selectionMotif, type(self.result_partiel)))
                 self.result_partiel = self.typeRecherche(selectionMotif, element)
 
 
