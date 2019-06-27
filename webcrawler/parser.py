@@ -322,10 +322,11 @@ class Parse():
         # try:
 
         while select:
+            resultat_inter = ''
             try:
                 action, args = next(select)
                 parse_log.debug("action args : {} {}".format(action, args))
-                resultat_inter = ''
+
                 if isinstance(resultat, list) or isinstance(resultat, set):
                     resultat_inter = set([])
                     #parse_log.debug('Nous avons plusieurs resultats :\n{} {}'.format(args, str([i.text for i in resultat])))
