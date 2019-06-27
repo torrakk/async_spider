@@ -278,7 +278,8 @@ class Parse():
 
                 #print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
-                    inter.update(trouve)
+                    for item in trouve:
+                        inter.update(item)
                 elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
                     return trouve
                 elif item in ('click', 'drag_and_drop'):
