@@ -273,8 +273,8 @@ class Parse():
         lastHeight = self.page.execute_script("return document.documentElement.scrollHeight")
         while onContinue:
             try:
-                trouve = [self.__mapp(self.resultat, {cle: item.get_attribute("href") or getattr(item, cle, '') if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
-                                                       for cle in self.resultat.keys()}) for item in self.seleniumRechercheBase(item, action, args) ]
+                trouve = [self.__mapp(self.resultat, ((cle, item.get_attribute(cle)) or getattr(item, cle, '') if cle != 'text' else item.getText().strip() if hasattr(item, 'getText') else item.text
+                                                       for cle in self.resultat.keys())) for item in self.seleniumRechercheBase(item, action, args) ]
                 #print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
                     inter.update(trouve)
