@@ -87,7 +87,7 @@ class Parse():
         :param cle:
         :return:
         '''
-        print(type(resu), " : " , cle)
+        print(set(map(type, resu)), " : " , cle)
         if hasattr(resu, cle):
             #print('l\'element {} possede la methode {}'.format(resu, cle))
             return getattr(resu, cle)
