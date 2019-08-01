@@ -48,7 +48,8 @@ class Parse():
         Permet de parser une liste de balise en appelant la methode parse
         
         :param list: parse une liste de kwargs
-        :return: 
+        :return:
+
         List_resultat
         '''
         return [self.parse(**baliz) for baliz in list_baliz] if list_baliz else self.page
@@ -440,6 +441,50 @@ class Parse():
         recherche = self.list_parse(list_baliz)
         resultante = min([len([item.values() for item in  item_recherche if item.values()]) for item_recherche in recherche])
         return list(zip(*[[j  for j in reorgPaquetGenerator(i, resultante) if j ] for i in recherche]))
+
+class rechercheSelenium():
+
+    '''
+    Permet de faire une recherche en chaine d'éléments selenium
+    la recherche selenium produit des objets chaineDeRecherche
+    '''
+
+    def __init__(self, page, recherche):
+        pass
+
+class chaineDeRecherche():
+    '''
+    La chaîne de recherche permet d'avoir un objet contenant tous les éléments d'une chaîne de recherche
+    Le chaine permet de faire toute la recherche en une fois. CAD nous allons tout de suite a l'élément le plus profond.
+    Une chaîne est produite par élément recherché. Chaque élément est de type webElement au nous allons ajouter des méthodes
+    et attributs.
+    La chaîne de recherche permet de rechercher dans une page les éléments et de les comparer
+    '''
+
+    CHAINE = set([])
+
+    def scroll(self):
+        pass
+
+    def __init__(self, recherches, webdriver):
+        self.recherches
+        self.webdriver
+
+from types import MethodType
+# https://www.ianlewis.org/en/dynamically-adding-method-classes-or-class-instanc
+
+class webElement():
+    '''
+    L'objet webElement est une classe contenant des méthodes qui seront ajoutés aux objet webelement de selenium
+    '''
+    def __init__(self):
+        self.pere = None
+        self.fils = None
+
+    def __eq__(self, objet):
+        if self.getText == objet.getText:
+            return True
+        return False
 
 
 if __name__=='__main__':
