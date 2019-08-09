@@ -10,10 +10,13 @@ import time
 import re
 
 from webcrawler.utils import reorgPaquetGenerator
-from webcrawler.log import parse_log
+from webcrawler.log import sele_log
 from webcrawler.mapper import mapp
 from webcrawler.utils import xpath
 
+def action(recherches):
+    for item in recherches:
+        yield item
 
 def rechercheDsElement(element, methode):
 
@@ -29,20 +32,20 @@ class rechercheSelenium():
     def __init__(self, page, recherche):
         pass
 
-class chaineDeRecherche():
+class chaineDAction():
     '''
-    La chaîne de recherche permet d'avoir un objet contenant tous les éléments d'une chaîne de recherche
+    La chaîne d'action permet d'avoir un objet contenant tous les éléments d'une chaîne de recherche
     Le chaine permet de faire toute la recherche en une fois. CAD nous allons tout de suite a l'élément le plus profond.
     Une chaîne est produite par élément recherché. Chaque élément est de type webElement au nous allons ajouter des méthodes
     et attributs.
-    La chaîne de recherche permet de rechercher dans une page les éléments et de les comparer
+    La chaîne d'actions permet d'executer des actions dans une page de remonter les éléments et de les comparer
     Nous fournissons aux différents éléments les méthodes avec lesquelles ils doivent rechercher.
     '''
 
     ##Variables contenant tous les éléménts, plusieurs chaineDeRecherchent peuvent être inclues.
 
     def __init__(self, recherches, webdriver):
-        self.recherches
+        self.recherches = action(recherches)
         self.webdriver
         self.chaine = set([])
 
@@ -65,22 +68,152 @@ from types import MethodType
 
 # class composition(ABC):
 
+class windowAction():
+    '''
+    Objet fenetre permettant de déplacer la fenêtre dans la page cet objet fenetre est controlé par l'objet
+    WebElements
+    '''
 
-class webElement():
+
+    def __init__(self, session):
+        self.page = session
+        self.page.execute_script("window.scrollTo(0, 0)")
+        self.lastheight = 0
+        ## Fixe le endpage à false
+        self._endpage = False
+        ## permet au script de continuer de scroller
+        self.oncontinue = True
+
+    def refresh(self):
+        '''
+        Permet un rafraîchissement du DOM de la page
+        :return:
+        '''
+        self.page.navigate().refresh()
+
+    def scroll(self):
+        while self.oncontinue:
+            try:
+                ## Deplace la fenetre de visibilite sur la page
+                self.moove()
+                # self.page.implicitly_wait(self.PAUSE)
+                time.sleep(self.PAUSE)
+                newHeight = self.getHeight()
+                if newHeight == self.lastHeight:
+                    self.startOfDoc()
+                    self._endpage = True
+                    yield False, newHeight
+                yield True, newHeight
+            except(Exception) as e:
+                sele_log.debug(traceback.format_exc())
+                print(e, traceback.format_exc())
+                raise
+            self.lastHeight = newHeight
+
+    @property
+    def endpage(self):
+        return self._endpage
+
+    def getHeight(self):
+        '''Permet d'obtenir le hauteur actuelle de la fenêtre'''
+        try:
+            return self.page.execute_script("return document.documentElement.scrollHeight;")
+        except(Exception) as e:
+            sele_log.debug(traceback.format_exc())
+            print(e, traceback.format_exc())
+            raise
+
+    def moove(self, height=None, direction='Down'):
+        '''
+        Permet de bouger la fenêtre de la taille du navigateur de haut en bas
+        :return:
+        '''
+        if not height:
+            height = self.getHeight()
+        height = height if direction is 'Down' else -1*height
+        try:
+            self.page.execute_script("window.scrollBy(0, {});".format(height))
+        except(Exception) as e:
+            sele_log.debug(traceback.format_exc())
+            print(e, traceback.format_exc())
+            raise
+
+    def startOfDoc(self):
+        self.page.execute_script("window.scrollTo(0, 0)")
+
+class webElements():
+
+    def __init__(self, recherche, page ):
+        self.page = page
+        self.action = recherche
+        self.window = windowAction(self.page)
+
+    def seleniumRechercheBase(self, item, action, args=None):
+
+        try:
+            methodeSelenium = self.__getSeleniumMethod(item, action)
+        except(Exception) as e:
+            print(e, traceback.format_exc())
+            print("L'objet {} n'a pas de méthode {}".format(item, action))
+            raise
+        return methodeSelenium(args) if args else methodeSelenium()
+
+    def infiniteScrollLocalize(self, item, action, args=None):
+        '''
+        Methode permettant de rechercher un élément dans la page en scrollant
+        :param item: element selenium
+        :param action: Methode selenium a appliquer
+        :param args: Arguments accompagnant la methode selenium
+        :return:
+        '''
+
+        onContinue = True
+        inter = set([])
+        try:
+            itemDoc = item.__doc__.replace('\n', '')
+        except(AttributeError):
+            itemDoc = item.__doc__
+        finally:
+            if not itemDoc:
+                itemDoc = ''
+
+        #La boucle ici permet de rechercher des éléments à l'intérieur de la fenêtre courante
+
+        while onContinue:
+            try:
+                trouve = self.seleniumRechercheBase(item, action, args)
+                # print(trouve, self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc), self.DOCSTRING_WEBELEMENT.match(itemDoc))
+                if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
+                    for item in trouve:
+                        inter.update(item)
+                elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
+                    return trouve
+                elif item in ('click', 'drag_and_drop', 'back'):
+                    return None
+            except(Exception) as e:
+                print(e, traceback.format_exc())
+                raise
+            onContinue, newHeight = self.window.scroll()
+
+        # print("List inter :", [i.tag_name for i in inter])
+        return list(inter) if inter else None
+
+
+class webElementSpider():
     '''
     L'objet webElement est une classe contenant des méthodes qui seront ajoutés aux objet webelement de selenium.
     Pour ce faire nous avons choisi le pattern de composition. La composition permettra d'executer, la méthode correspondante.
     '''
 
-    def __init__(self):
+    def __init__(self, webElement):
         self.chainepere = None
         self.chainefils = None
         self.retour = False
 
-    def method(self):
+    def method(self, methode):
         """
         Permet de jouer la methode proposee à ce niveau
-        :return: retour de la methode jouée
+        :return: retour de la methode excutée
         """
         self.retour = True
         self._method = self.method
