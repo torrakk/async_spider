@@ -46,7 +46,7 @@ class chaineDAction():
 
     def __init__(self, recherches, webdriver):
         self.recherches = action(recherches)
-        self.webdriver
+        self.webdriver = webdriver
         self.chaine = set([])
 
     def finRecherche(self):
@@ -90,6 +90,8 @@ class windowAction():
         :return:
         '''
         self.page.navigate().refresh()
+        self.startOfDoc()
+        self.moove(self.newHeight)
 
     def scroll(self):
         while self.oncontinue:
@@ -98,17 +100,17 @@ class windowAction():
                 self.moove()
                 # self.page.implicitly_wait(self.PAUSE)
                 time.sleep(self.PAUSE)
-                newHeight = self.getHeight()
-                if newHeight == self.lastHeight:
+                self.newHeight = self.getHeight()
+                if self.newHeight == self.lastHeight:
                     self.startOfDoc()
                     self._endpage = True
-                    yield False, newHeight
-                yield True, newHeight
+                    yield False, self.newHeight
+                yield True, self.newHeight
             except(Exception) as e:
                 sele_log.debug(traceback.format_exc())
                 print(e, traceback.format_exc())
                 raise
-            self.lastHeight = newHeight
+            self.lastHeight = self.newHeight
 
     @property
     def endpage(self):
@@ -142,6 +144,14 @@ class windowAction():
         self.page.execute_script("window.scrollTo(0, 0)")
 
 class webElements():
+    '''
+    Serie d'éléments remontés d'une recherche, sur une fenêtre (windowAction)
+    L'objet webelement pilote l'objet windowAction qui se deplace sur la page.
+    '''
+
+    PAUSE = 4
+    DOCSTRING_LIST_WEBELEMENT = re.compile('^.*:Returns:.*- (list of WebElement).*$')
+    DOCSTRING_WEBELEMENT = re.compile('^.*:Returns:.*- (WebElement).*$')
 
     def __init__(self, recherche, page ):
         self.page = page
@@ -177,6 +187,7 @@ class webElements():
             if not itemDoc:
                 itemDoc = ''
 
+
         #La boucle ici permet de rechercher des éléments à l'intérieur de la fenêtre courante
 
         while onContinue:
@@ -186,9 +197,11 @@ class webElements():
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
                     for item in trouve:
                         inter.update(item)
+
                 elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
                     return trouve
                 elif item in ('click', 'drag_and_drop', 'back'):
+                    self.window.refresh()
                     return None
             except(Exception) as e:
                 print(e, traceback.format_exc())
@@ -199,7 +212,7 @@ class webElements():
         return list(inter) if inter else None
 
 
-class webElementSpider():
+class webElement():
     '''
     L'objet webElement est une classe contenant des méthodes qui seront ajoutés aux objet webelement de selenium.
     Pour ce faire nous avons choisi le pattern de composition. La composition permettra d'executer, la méthode correspondante.
@@ -223,6 +236,7 @@ class webElementSpider():
     def __hash__(self):
         """
         Le hash est défini en fonction du texte contenu dans l'objet
+        TODO la methode de hash doit être faite sur l'objet webelement prit en argument
         :return:
         """
         return hash(self.getText)
