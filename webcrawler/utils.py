@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from logging2 import Logger
 from urllib.parse import urljoin
 import bs4
-from webcrawler.static_page.page_test import html
+from webcrawler.static_page.page import html
 
 def joinUrl(*args):
     return urljoin(*args)

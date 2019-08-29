@@ -13,13 +13,14 @@ from webcrawler.utils import reorgPaquetGenerator
 from webcrawler.log import sele_log
 from webcrawler.mapper import mapp
 from webcrawler.utils import xpath
+from webcrawler.settings import PAUSE
 
 def action(recherches):
     for item in recherches:
         yield item
 
 def rechercheDsElement(element, methode):
-
+    pass
 
 
 class rechercheSelenium():
@@ -60,7 +61,7 @@ class chaineDAction():
 
     def recherche(self):
         while not self.finRecherche():
-
+            pass
 
 
 from types import MethodType
@@ -73,16 +74,18 @@ class windowAction():
     Objet fenetre permettant de déplacer la fenêtre dans la page cet objet fenetre est controlé par l'objet
     WebElements
     '''
-
+    PAUSE = PAUSE
 
     def __init__(self, session):
         self.page = session
         self.page.execute_script("window.scrollTo(0, 0)")
-        self.lastheight = 0
+        self.lastHeight = 0
+        self.newHeight = 0
         ## Fixe le endpage à false
         self._endpage = False
         ## permet au script de continuer de scroller
         self.oncontinue = True
+        print("initialisation de windowAction")
 
     def refresh(self):
         '''
@@ -94,18 +97,22 @@ class windowAction():
         self.moove(self.newHeight)
 
     def scroll(self):
+
         while self.oncontinue:
             try:
                 ## Deplace la fenetre de visibilite sur la page
+                print("Debut du moove")
                 self.moove()
                 # self.page.implicitly_wait(self.PAUSE)
+
                 time.sleep(self.PAUSE)
                 self.newHeight = self.getHeight()
+                sele_log.debug("Nouvelle hauteur mesurée {}".format(self.newHeight))
                 if self.newHeight == self.lastHeight:
                     self.startOfDoc()
                     self._endpage = True
-                    yield False, self.newHeight
-                yield True, self.newHeight
+                    return False, self.newHeight
+                return True, self.newHeight
             except(Exception) as e:
                 sele_log.debug(traceback.format_exc())
                 print(e, traceback.format_exc())
@@ -118,12 +125,12 @@ class windowAction():
 
     def getHeight(self):
         '''Permet d'obtenir le hauteur actuelle de la fenêtre'''
-        try:
-            return self.page.execute_script("return document.documentElement.scrollHeight;")
-        except(Exception) as e:
-            sele_log.debug(traceback.format_exc())
-            print(e, traceback.format_exc())
-            raise
+        # try:
+        return self.page.execute_script("return document.documentElement.scrollHeight;")
+        # except(Exception) as e:
+        #     sele_log.debug(traceback.format_exc())
+        #     print(e, traceback.format_exc())
+        #     raise
 
     def moove(self, height=None, direction='Down'):
         '''
@@ -133,6 +140,7 @@ class windowAction():
         if not height:
             height = self.getHeight()
         height = height if direction is 'Down' else -1*height
+        sele_log.debug("Nous sommes dans le moove {}".format(height))
         try:
             self.page.execute_script("window.scrollBy(0, {});".format(height))
         except(Exception) as e:
@@ -197,7 +205,6 @@ class webElements():
                 if (self.DOCSTRING_LIST_WEBELEMENT.match(itemDoc) or itemDoc is '') and trouve:
                     for item in trouve:
                         inter.update(item)
-
                 elif self.DOCSTRING_WEBELEMENT.match(itemDoc) and trouve:
                     return trouve
                 elif item in ('click', 'drag_and_drop', 'back'):

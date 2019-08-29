@@ -9,6 +9,8 @@ LOG_LEVEL='debug'
 #GUICHET_ADRESSE = 'https://www.data.gouv.fr/fr/search/?q=servitude+haute-loire'
 #GUICHET_ADRESSE = 'https://www.grosfichiers.com/hNEIS4SBs8spU/'
 
+
+
 # Login
 LOGIN='******'
 
@@ -23,5 +25,6 @@ TIMEOUT = 3000
 
 ## SELENIUM
 
-BROWSER_VISIBILITY = 0
+BROWSER_VISIBILITY = 1
 RESOLUTION=(1366, 768)
+PAUSE = 4
