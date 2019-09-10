@@ -15,17 +15,17 @@ from webcrawler.mapper import mapp
 from webcrawler.utils import xpath
 from webcrawler.settings import PAUSE
 
-def action(recherches):
-    '''
-    Générateurs sur les actions
-    :param recherches:
-    :return:
-    '''
-    rank = 0
-    length = len(recherches)
-    for item in recherches:
-        rank += 1
-        yield item
+# def action(recherches):
+#     '''
+#     Générateurs sur les actions
+#     :param recherches:
+#     :return:
+#     '''
+#     rank = 0
+#     length = len(recherches)
+#     for item in recherches:
+#         rank += 1
+#         yield item
 
 def lastSearchAction(recherches):
     '''
@@ -84,14 +84,17 @@ class chaineDAction():
     ##Variables contenant tous les éléménts, plusieurs chaineDeRecherchent peuvent être inclues.
     resultats = set([])
 
-    def __init__(self, recherches, page):
+    def __init__(self, recherches, page, rank=0):
         '''
         :param recherches: chaines de recherches
         :param page: Webdriver instancié
+        chaine : Groupe de webelements
         '''
 
         # crée un generateur qui permet de prendre les actions les unes après les autres
-        self.action = action(recherches)
+        self.rank = rank
+        self.recherches = recherches
+        self.action = recherches[self.rank]
         self.page = page
         self.chaine = set([])
 
@@ -111,8 +114,10 @@ class chaineDAction():
         :return:
         '''
         while not self.finAction():
-            webelems = webElements(next(self.action), self.page)
-            self.chaine = webelems.run(self)
+            webelems = webElements(self.action, self.page, self.rank)
+            webelems.run(self)
+
+
             
             # TODO Mettre en place ici la recherche des webelements
             # TODO il faut faire une fonction recursive qui rappel chaineAction afin que nous allions toujours
@@ -134,10 +139,13 @@ class webElements():
 
     PAUSE = 4
 
-    def __init__(self, recherche, page ):
+    def __init__(self, action, page, rank, args=None ):
+
+        self.rank = rank
         self.page = page
+        self.args = args
         self.url = self.page.getCurrentUrl()
-        self.action = recherche
+        self.action = action
         self.window = windowAction(self.page)
 
     def __getSeleniumMethod(self, resu, cle):
@@ -168,7 +176,7 @@ class webElements():
             raise
         return methodeSelenium(args) if args else methodeSelenium()
 
-    def run(self, item, action, args=None):
+    def run(self, chainedaction):
 
         '''
         Methode permettant de rechercher de faire une recherche dans la page
@@ -177,20 +185,22 @@ class webElements():
         :param args: Arguments accompagnant la methode selenium
         :return:
         '''
-
+        self.chainedaction = chainedaction
         onContinue = True
-        inter = set([])
+        inter = chainedaction.chaine
 
         #La boucle ici permet de rechercher des éléments à l'intérieur de la fenêtre courante
 
         while onContinue:
             try:
-                trouve = self.seleniumActionBase(item, action, args)
+                trouve = self.seleniumActionBase(item, self.action, self.args)
                 typoItem = getItemType(item)
                 if typoItem == 'liste' and trouve:
                     for item in trouve:
+                         ## TODO les transformer en webelements ici !!
                          inter.update(item)
                 elif typoItem == 'single' and trouve:
+                    ## TODO les transformer en webelements ici !!
                     inter = trouve
             except(Exception) as e:
                 print(e, traceback.format_exc())
@@ -198,15 +208,20 @@ class webElements():
             ## Si nous sommes au dernier rang de recherche alors nous
             ## continuons la recherche
 
-            ## TODO finir la problématique ici, soit il faut continuer le scroll, si nous sommes au dernier rang de recherche
-            ## TODO ajouter l'éléments père à la chaîne d'action pour que l'élément enfant puisse dire au père d'avancer
-            ## TODO modifier le calcul de rang car un generateur ne va pas, il faudrait le mettre dans les webelements et chaineDAction
-            ## TODO Il faut faire un dialogue entre webelements et chaineDAction
-            if action.rank == action.length:
-                onContinue = self.window.scroll()
-            ## Sinon nous ne scrollons pas et continuons la recherche en profondeur
-            else:
-                chaineDAction()
+            try:
+                ## 1 Nous sommes a un rang terminal, nous continuons donc à rechercher des elements
+                if self.action.rank == self.action.length:
+                    onContinue = self.window.scroll()
+                ## Sinon nous ne scrollons pas et continuons la recherche en profondeur
+                else:
+                    # 2 Nous ne sommes pas a un rang terminal, nous creons donc une windows action pour le rang suivants.
+                    for webelement in trouve:
+                        ## TODO comment affecter les resultats pour les retraiter
+                        ## TODO comment faire en sorte que la page puisse être re rafraichit et les éléments recherchés.
+                        chaineDAction(chainedaction.recherches[self.rank+1], self.page, )
+            except AttributeError:
+                ## TODO Nous sommes au cas ou l'action n'a pas de resultat
+                ## TODO implementer une action en cas click ou autre
 
 
         # print("List inter :", [i.tag_name for i in inter])
@@ -307,11 +322,10 @@ class webElement():
     '''
 
     def __init__(self, webElement):
-        self.chainepere = None
-        self.chainefils = None
         self.retour = False
+        self.webelement = webElement
 
-    def method(self, methode):
+    def method(self):
         """
         Permet de jouer la methode proposee à ce niveau
         :return: retour de la methode excutée
@@ -320,6 +334,12 @@ class webElement():
         self._method = self.method
         return self._method()
 
+    def __call__(self):
+        """
+        :return:
+        """
+        return self.webelement
+
     @property
     def __hash__(self):
         """
@@ -327,7 +347,7 @@ class webElement():
         TODO la methode de hash doit être faite sur l'objet webelement prit en argument
         :return:
         """
-        return hash(self.getText)
+        return hash(self.webelement.getText)
 
     def __eq__(self, other):
         '''
@@ -335,6 +355,6 @@ class webElement():
         :param value:
         :return:
         '''
-        if self.__hash__ == hash(other):
+        if self.webelement.__hash__ == hash(other):
             return True
         return False
