@@ -33,7 +33,7 @@ praw==5.3.0
 prawcore==0.13.0
 psycopg2==2.7.3.1
 public==1.0.2
-py==1.5.3
+py==1.10.0
 pycurl==7.43.0.1
 pyenchant==2.0.0
 pygeocoder==1.2.5
